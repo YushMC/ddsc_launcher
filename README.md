@@ -4,8 +4,8 @@ Software enfocado en mejorar la experiencia en el proceso de instalación para m
 
 Este software utiliza la tecnología de electron, vue 3 y node.js
 
-- [SitioWeb](https://www.dokidokispanish.club/)
-- [IP_Guidelines](https://teamsalvato.com/ip-guidelines)
+- [Sitio Web Spanish Club](https://www.dokidokispanish.club/)
+- [IP Guidelines de Team Salvato](https://teamsalvato.com/ip-guidelines)
 
 ## Requistos
 
