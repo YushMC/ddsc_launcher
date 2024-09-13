@@ -12,8 +12,8 @@ Este software utiliza la tecnología de electron, vue 3 y node.js
 Contar con los siguientes conceptos para colaborar con el desarrollo
 
 - [NodeJS](https://nodejs.org)
-- [Electorn + Vite](https://electron-vite.org/)
-- [Vue.JS + Vite]
+- [Electron + Vite](https://electron-vite.org/)
+- Vue.JS + Vite
 
 ## Recomendaciones de IDE
 - [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
