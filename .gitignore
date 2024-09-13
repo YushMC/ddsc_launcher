@@ -1,0 +1,12 @@
+node_modules
+dist
+out
+build
+.DS_Store
+.vscode
+*.log*
+.editorconfig
+.eslintignore
+.eslintrc.cjs
+.prettierignore
+.prettierrc.yaml

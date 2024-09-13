@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Nerko+One&display=swap');
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+html{
+    height: 100%;
+}
+body{
+    font-family:  system-ui;
+    width: 100%;
+    height: 100%;
+    /* background: linear-gradient(to right, #be93c5, #7bc6cc); */
+    user-select: none;
+    background-image: url('https://www.dokidokispanish.club/assets/gui/banner_inicio.jpg');
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+}
