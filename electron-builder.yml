@@ -1,4 +1,4 @@
-appId: com.electron.app
+appId: club.dokidokispanishclub.launcher
 productName: ddsc_launcher
 directories:
   buildResources: build

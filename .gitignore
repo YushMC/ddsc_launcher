@@ -10,3 +10,4 @@ build
 .eslintrc.cjs
 .prettierignore
 .prettierrc.yaml
+packagelocked.json
