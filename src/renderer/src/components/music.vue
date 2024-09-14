@@ -7,50 +7,50 @@
   <!-- Ventana principal-->
   <div v-if="isMusicPlayerVisible" class="card_music">
     <!-- Titulo de la ventana-->
-      <div class="titulo_ventana_music">
-          <h2>Reproductor de Música (Beta)</h2>
-          <h2 @click="ocultarMusica" style="cursor: pointer;">-</h2>
+    <div class="titulo_ventana_music">
+      <h2>Reproductor de Música (Beta)</h2>
+      <h2 @click="ocultarMusica" style="cursor: pointer;">-</h2>
+    </div>
+    <!-- Lista de canciones-->
+    <div v-if="songs.length > 0" class="song-list">
+      <ul>
+        <li v-for="(song, index) in songs" :key="index" @click="playSongFromList(index)" :class="{'active-song': currentSongIndex === index}">
+          <img :src="song.image" alt="Logo" width="30">
+          <span>{{ song.title }}</span>
+        </li>
+      </ul>
+    </div>
+    <!-- Controles de reproducción-->
+    <div class="controls_music">
+      <!-- Datos de la canción-->
+      <div class="datos_music">
+        <div class="image_music">
+          <img v-if="songs[currentSongIndex]" :src="songs[currentSongIndex].image" alt="Logo">
+        </div>
+        <div class="info_music">
+          <h3 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].title }}</h3>
+          <h5 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].details }}</h5>
+        </div>
       </div>
-      <!-- Lista de canciones-->
-      <div v-if="songs.length > 0" class="song-list">
-        <ul>
-          <li v-for="(song, index) in songs" :key="index" @click="playSongFromList(index)" :class="{'active-song': currentSongIndex === index}">
-            <img :src="song.image" alt="Logo" width="30">
-            <span>{{ song.title }}</span>
-          </li>
-        </ul>
-      </div>
-      <!-- Controles de reproudcción-->
-      <div class="controls_music">
-        <!-- Datos de la canción-->
-          <div class="datos_music">
-              <div class="image_music">
-                <img v-if="songs[currentSongIndex]" :src="songs[currentSongIndex].image" alt="Logo">
-              </div>
-              <div class="info_music">
-                <h3 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].title }}</h3>
-                <h5 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].details }}</h5>
-              </div>
+      <!-- Barra de progreso y controles-->
+      <div class="progress_music_and_controls">
+        <div id="progress_music" style="width: 100%;padding: 0 2%;">
+          <span>{{ formatTime(currentTime) }}</span>
+          <span> [</span>
+          <div id="progress" style="display: inline-block; width: 75%; height: 10px; background-color: #ddd; vertical-align: middle;">
+            <div id="progressBarMusic" :style="{ width: progress + '%' }"></div>
           </div>
-          <!-- Barra de prgreso y controles-->
-          <div class="progress_music_and_controls">
-              <div id="progress_music" style="width: 100%;padding: 0 2%;">
-                  <span>{{ formatTime(currentTime) }}</span>
-                  <span> [</span>
-                  <div id="progress" style="display: inline-block; width: 75%; height: 10px; background-color: #ddd; vertical-align: middle;">
-                    <div id="progressBarMusic" :style="{ width: progress + '%' }"></div>
-                  </div>
-                  <span>] {{ formatTime(duration) }}</span>
-              </div>
-              <!-- Botones de control-->
-              <div class="controls_music_buttons">
-                  <button @click="prevSong"><i class="fa-solid fa-backward"></i></button>
-                  <button @click="play_pause" :class="pausa_play ? 'play' : 'no_play'" ><i :class="pausa_play ? 'fa-solid fa-pause' : 'fa-solid fa-play' "></i></button>
-                  <button @click="stop"><i class="fa-solid fa-stop"></i></button>
-                  <button @click="nextSong"><i class="fa-solid fa-forward"></i></button>
-              </div>
-          </div>
+          <span>] {{ formatTime(duration) }}</span>
+        </div>
+        <!-- Botones de control-->
+        <div class="controls_music_buttons">
+          <button @click="prevSong"><i class="fa-solid fa-backward"></i></button>
+          <button @click="play_pause" :class="pausa_play ? 'play' : 'no_play'"><i :class="pausa_play ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i></button>
+          <button @click="stop"><i class="fa-solid fa-stop"></i></button>
+          <button @click="nextSong"><i class="fa-solid fa-forward"></i></button>
+        </div>
       </div>
+    </div>
   </div>
 </template>
 
@@ -59,74 +59,69 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useMusicPlayer } from './../composables/useMusicPlayer';
 
 const { isMusicPlayerVisible } = useMusicPlayer();
-// Definir los estados
-const songs = ref([]); // Se inicializa vacío
+
+const songs = ref([]);
 const currentSongIndex = ref(0);
 const currentSong = ref({});
-
 const audio = ref(null);
 const progress = ref(0);
-const currentTime = ref(0); // Tiempo transcurrido
-const duration = ref(0);    // Duración total de la canción
+const currentTime = ref(0);
+const duration = ref(0);
+const pausa_play = ref(false);
 
-const pausa_play = ref(null);
-let isReadyToPlay = ref(false); // Para asegurarnos de que el audio esté listo
-
-// Función para reproducir la canción seleccionada desde la lista
 const playSongFromList = (index) => {
+  if (index === currentSongIndex.value) {
+    play_pause();
+    return;
+  }
   currentSongIndex.value = index;
-  audio.value.pause();
-  audio.value.load(); // Cargar la nueva canción
-  audio.value.play();  // Reproducir la nueva canción
-  pausa_play.value = true;
+  currentSong.value = songs.value[currentSongIndex.value];
+  loadAndPlaySong();
 };
 
-// Función para reproducir la canción
 const play_pause = () => {
-  if(pausa_play.value == null){  // Solo se reproduce al hacer clic
-    audio.value.play();
-    pausa_play.value = true;
+  if (pausa_play.value) {
+    audio.value.pause();
+    pausa_play.value = false;
   } else {
-    if(pausa_play.value == true){
-      audio.value.pause();
-      pausa_play.value = false;
-    } else {
-      audio.value.play();
-      pausa_play.value = true;
-    }
+      loadAndPlaySong();
+    
   }
 };
 
-// Función para detener la canción
 const stop = () => {
   audio.value.pause();
-  audio.value.currentTime = 0; // Reiniciar al inicio
-  pausa_play.value = null;
+  audio.value.currentTime = 0;
+  pausa_play.value = false;
 };
 
-// Función para reproducir la canción anterior
 const prevSong = () => {
   if (currentSongIndex.value > 0) {
     currentSongIndex.value--;
     currentSong.value = songs.value[currentSongIndex.value];
-    resetPlayer();
-    audio.value.play();
-    pausa_play.value = true
+    loadAndPlaySong();
   }
 };
 
-// Función para reproducir la siguiente canción
 const nextSong = () => {
   if (currentSongIndex.value < songs.value.length - 1) {
     currentSongIndex.value++;
     currentSong.value = songs.value[currentSongIndex.value];
-    resetPlayer();
-    audio.value.play();
-    pausa_play.value = true
+    loadAndPlaySong();
   }
 };
 
-// Función para actualizar el progreso y tiempo transcurrido
+const loadAndPlaySong = () => {
+  audio.value.pause();
+  audio.value.src = currentSong.value.src;
+  audio.value.load();
+  audio.value.play().then(() => {
+    pausa_play.value = true;
+  }).catch((error) => {
+    console.error('Error al reproducir la canción:', error);
+  });
+};
+
 const updateProgress = () => {
   if (audio.value.duration) {
     currentTime.value = audio.value.currentTime;
@@ -135,76 +130,55 @@ const updateProgress = () => {
   }
 };
 
-// Función para formatear el tiempo en minutos y segundos
 const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
 
-// Función que se ejecuta cuando una canción termina
 const onSongEnd = () => {
-  pausa_play.value = null; // Reiniciar el estado del botón de play/pause
-  audio.value.currentTime = 0; // Reiniciar el tiempo de la canción
-  // Reproducir la siguiente canción si existe
-  if (currentSongIndex.value < songs.value.length - 1) {
-    nextSong();
-  }
+  pausa_play.value = false;
+  audio.value.currentTime = 0;
+  nextSong();
 };
 
-// Función para reiniciar el reproductor cuando se cambia de canción
-const resetPlayer = () => {
-  isReadyToPlay.value = false; // Marcar que el audio aún no está listo
-  audio.value.load(); // Cargar la nueva canción
-  // Esperar a que esté listo antes de reproducir
-  
-};
-
-const ocultarMusica = ()=>{
-  isMusicPlayerVisible.value = false
-}
-
-// Función para obtener las canciones desde una API
 const fetchSongs = async () => {
   try {
-    const response = await fetch('https://www.dokidokispanish.club/api_ddsc/songs'); // URL de tu API
+    const response = await fetch('https://www.dokidokispanish.club/api_ddsc/songs');
     if (!response.ok) {
       throw new Error('Error al obtener las canciones');
     }
     const data = await response.json();
-    // Asignar las canciones obtenidas desde la propiedad 'results'
     songs.value = data.results.map(song => ({
       title: song.title,
       details: song.details,
       src: song.src,
       image: song.image
     }));
-    currentSong.value = songs.value[currentSongIndex.value]; // Establecer la primera canción
-    resetPlayer(); // Preparar el reproductor
+    currentSong.value = songs.value[currentSongIndex.value];
+    
   } catch (error) {
     console.error(error);
   }
 };
 
-// Evento que actualiza la barra de progreso y el tiempo transcurrido mientras la canción se reproduce
 onMounted(() => {
-  fetchSongs(); // Llamar a la función para obtener las canciones al cargar el componente
+  fetchSongs();
   audio.value.addEventListener('timeupdate', updateProgress);
-  audio.value.addEventListener('loadedmetadata', () => {
-    duration.value = audio.value.duration;
-  });
   audio.value.addEventListener('ended', onSongEnd);
 });
 
-// Limpiar los eventos al desmontar el componente
 onUnmounted(() => {
   audio.value.removeEventListener('timeupdate', updateProgress);
-  audio.value.removeEventListener('loadedmetadata', () => {
-    duration.value = audio.value.duration;
-  });
   audio.value.removeEventListener('ended', onSongEnd);
 });
 </script>
+
+<style>
+/* Aquí van los estilos */
+</style>
+
+
 
 <style scoped>
 .card_music{
