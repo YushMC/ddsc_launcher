@@ -32,22 +32,20 @@
           <h5 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].details }}</h5>
         </div>
       </div>
-      <!-- Barra de progreso y controles-->
+      <!-- Barra de progreso con slider-->
       <div class="progress_music_and_controls">
-        <div id="progress_music" style="width: 100%;padding: 0 2%;">
+        <div id="progress_music">
+          
           <span>{{ formatTime(currentTime) }}</span>
-          <span> [</span>
-          <div id="progress" style="display: inline-block; width: 75%; height: 10px; background-color: #ddd; vertical-align: middle;">
-            <div id="progressBarMusic" :style="{ width: progress + '%' }"></div>
-          </div>
-          <span>] {{ formatTime(duration) }}</span>
+          <input type="range" min="0" :max="duration" v-model="currentTime" @input="seek" />
+          <span>{{ formatTime(duration) }}</span>
         </div>
         <!-- Botones de control-->
         <div class="controls_music_buttons">
-          <button @click="prevSong"><i class="fa-solid fa-backward"></i></button>
+          <button @click="prevSong" :disabled="!hasPreviousSong" :class="{ 'disabled': !hasPreviousSong }"><i class="fa-solid fa-backward-fast"></i></button>
           <button @click="play_pause" :class="pausa_play ? 'play' : 'no_play'"><i :class="pausa_play ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i></button>
           <button @click="stop"><i class="fa-solid fa-stop"></i></button>
-          <button @click="nextSong"><i class="fa-solid fa-forward"></i></button>
+          <button @click="nextSong" :disabled="!hasNextSong" :class="{ 'disabled': !hasNextSong }"><i class="fa-solid fa-forward-fast"></i></button>
         </div>
       </div>
     </div>
@@ -55,20 +53,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+//controlar la ventana (visibilidad)
 import { useMusicPlayer } from './../composables/useMusicPlayer';
-
 const { isMusicPlayerVisible } = useMusicPlayer();
-
+//variables para almacenar las canciones y el tiempo
 const songs = ref([]);
 const currentSongIndex = ref(0);
 const currentSong = ref({});
 const audio = ref(null);
-const progress = ref(0);
 const currentTime = ref(0);
 const duration = ref(0);
 const pausa_play = ref(false);
 
+const ocultarMusica = ()=>{
+  isMusicPlayerVisible.value = false
+}
+//seleccionar cancion de la lista
 const playSongFromList = (index) => {
   if (index === currentSongIndex.value) {
     play_pause();
@@ -76,72 +77,87 @@ const playSongFromList = (index) => {
   }
   currentSongIndex.value = index;
   currentSong.value = songs.value[currentSongIndex.value];
-  loadAndPlaySong();
+  pausa_play.value = true
+  loadAndPlaySong(true); // Reiniciar currentTime al cambiar de canción
 };
-
+//pausar o reanudar cancion
 const play_pause = () => {
   if (pausa_play.value) {
     audio.value.pause();
     pausa_play.value = false;
   } else {
+    if (audio.value.paused && audio.value.src !== currentSong.value.src) {
       loadAndPlaySong();
-    
+    }
+    audio.value.play().catch((error) => {
+      console.error('Error al reproducir la canción:', error);
+    });
+    pausa_play.value = true;
   }
 };
-
+//detener cancion
 const stop = () => {
   audio.value.pause();
   audio.value.currentTime = 0;
   pausa_play.value = false;
 };
-
+//cancion anterior
 const prevSong = () => {
   if (currentSongIndex.value > 0) {
     currentSongIndex.value--;
     currentSong.value = songs.value[currentSongIndex.value];
-    loadAndPlaySong();
+    pausa_play.value = true
+    loadAndPlaySong(true); // Reiniciar currentTime al cambiar de canción
   }
 };
-
+//cancion siguiente
 const nextSong = () => {
   if (currentSongIndex.value < songs.value.length - 1) {
     currentSongIndex.value++;
     currentSong.value = songs.value[currentSongIndex.value];
-    loadAndPlaySong();
+    pausa_play.value = true
+    loadAndPlaySong(true); // Reiniciar currentTime al cambiar de canción
   }
 };
-
-const loadAndPlaySong = () => {
-  audio.value.pause();
-  audio.value.src = currentSong.value.src;
-  audio.value.load();
-  audio.value.play().then(() => {
-    pausa_play.value = true;
-  }).catch((error) => {
+//ejecutar cancion al dar click a una de la lista, al pasar o retroceder o en modo continuo
+const loadAndPlaySong = (resetTime = false) => {
+  if (audio.value.src !== currentSong.value.src) {
+    audio.value.src = currentSong.value.src;
+    audio.value.load();
+  }
+  if (resetTime) {
+    audio.value.currentTime = 0; // Reiniciar tiempo al cambiar de canción
+  } else {
+    audio.value.currentTime = currentTime.value; // Mantener el tiempo actual
+  }
+  audio.value.play().catch((error) => {
     console.error('Error al reproducir la canción:', error);
   });
 };
-
+//actualizar progreso en la barra
 const updateProgress = () => {
   if (audio.value.duration) {
     currentTime.value = audio.value.currentTime;
     duration.value = audio.value.duration;
-    progress.value = (audio.value.currentTime / audio.value.duration) * 100;
   }
 };
-
+//formatear los tiempos
 const formatTime = (time) => {
   const minutes = Math.floor(time / 60);
   const seconds = Math.floor(time % 60);
   return `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 };
-
+//al terminar una cancion
 const onSongEnd = () => {
   pausa_play.value = false;
   audio.value.currentTime = 0;
   nextSong();
 };
-
+//opcion para que el usario pueda adelantar o atrasar la linea del tiempo
+const seek = () => {
+  audio.value.currentTime = currentTime.value;
+};
+//importar las canciones
 const fetchSongs = async () => {
   try {
     const response = await fetch('https://www.dokidokispanish.club/api_ddsc/songs');
@@ -156,11 +172,14 @@ const fetchSongs = async () => {
       image: song.image
     }));
     currentSong.value = songs.value[currentSongIndex.value];
-    
+    //loadAndPlaySong(); // Iniciar reproducción de la primera canción
   } catch (error) {
     console.error(error);
   }
 };
+//opciones para visualizar los botones de anterior y siguiente
+const hasPreviousSong = computed(() => currentSongIndex.value > 0);
+const hasNextSong = computed(() => currentSongIndex.value < songs.value.length - 1);
 
 onMounted(() => {
   fetchSongs();
@@ -173,12 +192,6 @@ onUnmounted(() => {
   audio.value.removeEventListener('ended', onSongEnd);
 });
 </script>
-
-<style>
-/* Aquí van los estilos */
-</style>
-
-
 
 <style scoped>
 .card_music{
@@ -234,6 +247,15 @@ onUnmounted(() => {
     width: 100%;
     margin-top: 2%;
 }
+#progress_music{
+  width: 100%;
+  padding: 0 2%;
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
+}
+#progress_music > span{
+  text-align: center;
+}
 
 #progressBarMusic {
   width: 0;
@@ -256,6 +278,10 @@ onUnmounted(() => {
   cursor: pointer;
   font-size: 1.5em;
   transition: all 0.3s linear;
+}
+.controls_music_buttons > button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .play{
   background: #e016d1 !important;
