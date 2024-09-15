@@ -1,8 +1,10 @@
 <template>
     <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
-      <h3>Agregar archivos de DDLC</h3>
+      <h2>Agregar archivos de DDLC</h2>
       <div class="container_inicio">
-        <h4>Colocar ruta del DDLC</h4>
+        <h4>Colocar ruta del archivo DDLC (ddlc-win.zip)</h4>
+        <h3>El archivo lo puedes descargar de https://ddlc.moe/</h3>
+        <a target="_blank" href="https://ddlc.moe/" id="about">Descargar archivo</a>
         <div class="mod_files">
           <input v-model="modFiles" type="text" required placeholder="C:\ubicacion" name="ubicacion" >
           <button @click="pasteClipboard" class="image_button" >

@@ -8,7 +8,7 @@
       <h2>Selecciona el mod/traducción a descargar e instalar!</h2>
       <div style="grid-template-columns: 8fr 1fr 1fr;">
         <select v-model="selectedOption">
-          <option value="Doki Doki Literature Club">Doki Doki Literature Club</option>
+          <option value="Doki Doki Literature Club">Doki Doki Literature Club (parche en español)</option>
           <option value="Peruvian Club">Peruvian Club</option>
           <option value="Meni Cuquis">Meni Cuquis</option>
           <option value="Celestial Restraint">Celestial Restraint</option>

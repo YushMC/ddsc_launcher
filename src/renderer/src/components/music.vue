@@ -16,7 +16,7 @@
       <ul>
         <li v-for="(song, index) in songs" :key="index" @click="playSongFromList(index)" :class="{'active-song': currentSongIndex === index}">
           <img :src="song.image" alt="Logo" width="30">
-          <span>{{ song.title }}</span>
+          <span>{{ song.title }} - {{ song.details }}</span>
         </li>
       </ul>
     </div>
@@ -30,6 +30,7 @@
         <div class="info_music">
           <h3 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].title }}</h3>
           <h5 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].details }}</h5>
+          <a target="_blank" :href="songs[currentSongIndex].enlace" id="about">Visitar</a>
         </div>
       </div>
       <!-- Barra de progreso con slider-->
@@ -45,6 +46,7 @@
           <button @click="prevSong" :disabled="!hasPreviousSong" :class="{ 'disabled': !hasPreviousSong }"><i class="fa-solid fa-backward-fast"></i></button>
           <button @click="play_pause" :class="pausa_play ? 'play' : 'no_play'"><i :class="pausa_play ? 'fa-solid fa-pause' : 'fa-solid fa-play'"></i></button>
           <button @click="stop"><i class="fa-solid fa-stop"></i></button>
+          <button @click="repeat_one_song" :class="replay ? 'play' : 'no_play'">1<i class="fa-solid fa-repeat"></i></button>
           <button @click="nextSong" :disabled="!hasNextSong" :class="{ 'disabled': !hasNextSong }"><i class="fa-solid fa-forward-fast"></i></button>
         </div>
       </div>
@@ -56,6 +58,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 //controlar la ventana (visibilidad)
 import { useMusicPlayer } from './../composables/useMusicPlayer';
+import { repeat } from 'lodash';
 const { isMusicPlayerVisible } = useMusicPlayer();
 //variables para almacenar las canciones y el tiempo
 const songs = ref([]);
@@ -65,6 +68,12 @@ const audio = ref(null);
 const currentTime = ref(0);
 const duration = ref(0);
 const pausa_play = ref(false);
+
+const replay = ref(false);
+
+const repeat_one_song = ()=>{
+  replay.value = !replay.value
+}
 
 const ocultarMusica = ()=>{
   isMusicPlayerVisible.value = false
@@ -149,9 +158,18 @@ const formatTime = (time) => {
 };
 //al terminar una cancion
 const onSongEnd = () => {
-  pausa_play.value = false;
-  audio.value.currentTime = 0;
-  nextSong();
+
+  //en caso de no estar activado el repetir una vez
+  if(replay.value==false){
+    pausa_play.value = false;
+    audio.value.currentTime = 0;
+    nextSong();
+  }else{
+    audio.value.currentTime = 0;
+    currentSong.value = songs.value[currentSongIndex.value];
+    loadAndPlaySong(true);
+    pausa_play.value = true;
+  }
 };
 //opcion para que el usario pueda adelantar o atrasar la linea del tiempo
 const seek = () => {
@@ -169,7 +187,8 @@ const fetchSongs = async () => {
       title: song.title,
       details: song.details,
       src: song.src,
-      image: song.image
+      image: song.image,
+      enlace: song.enlace
     }));
     currentSong.value = songs.value[currentSongIndex.value];
     //loadAndPlaySong(); // Iniciar reproducción de la primera canción
@@ -199,8 +218,9 @@ onUnmounted(() => {
     position: absolute;
     right: 1%;
     bottom: 10%;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.85);
     box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -213,6 +233,9 @@ onUnmounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0px 0px 10px 1px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 20;
 }
 .titulo_ventana_music h2{
     text-wrap: nowrap;
@@ -224,12 +247,32 @@ onUnmounted(() => {
     padding: 2%;
     display: flex;
     flex-direction: column;
-    
+    border: solid 3px #e016d1;
+    border-radius: 10px;
+    background: #f1f1f1;
+    position: relative;
+    z-index: 20;
+    box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.322);
 }
 .controls_music > .datos_music{
     display: grid;
     grid-template-columns: 1fr 4fr;
     gap: 3%;
+}
+.info_music{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+}
+ #about{
+  width: 50%;
+  text-align: center;
+  margin: 2% 0;
+  background: #e016d1;
+  color: white;
+  border-radius: 5px;
+  text-decoration: none;
 }
 .datos_music .image_music{
     width: 100%;
@@ -239,7 +282,7 @@ onUnmounted(() => {
 }
 .image_music img{
     width: 80%;
-    filter: drop-shadow(5px 5px 10px black);
+    filter: drop-shadow(0px  5px 10px rgba(0, 0, 0, 0.322));
 }
 .progress_music_and_controls{
     display: flex;
@@ -265,7 +308,7 @@ onUnmounted(() => {
 .controls_music_buttons{
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 2%;
     margin-top: 2%;
 }
@@ -293,7 +336,7 @@ onUnmounted(() => {
 }
 .song-list{
   width: 100%;
-  max-height: 300px;
+  max-height: 320px;
   padding: 2%;
   overflow-y: scroll;
 }
@@ -309,14 +352,19 @@ onUnmounted(() => {
   margin-bottom: 5px;
   display: flex;
   align-items: center;
+  transition: all 0.3s linear;
+  border-radius: 5px;
 }
-
+.song-list li:hover{
+  transform: scale(0.98);
+  background-color: rgba(0, 0, 0, 0.2);
+}
 .song-list li img {
   margin-right: 10px;
 }
 
 .song-list li.active-song {
-  background-color: #e0e0e0;
+  background-color: #e41eb279;
   font-weight: bold;
 }
 </style>
