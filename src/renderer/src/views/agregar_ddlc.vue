@@ -1,10 +1,10 @@
 <template>
     <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
-      <h2>Agregar archivos de DDLC</h2>
+      <h2 style="color: white;">Agregar archivos de DDLC</h2>
       <div class="container_inicio">
-        <h4>Colocar ruta del archivo DDLC (ddlc-win.zip)</h4>
-        <h3>El archivo lo puedes descargar de https://ddlc.moe/</h3>
-        <a target="_blank" href="https://ddlc.moe/" id="about">Descargar archivo</a>
+        <h2>Colocar ruta del archivo DDLC (ddlc-win.zip)</h2>
+        <h3 style="color: black;">El archivo lo puedes descargar de https://ddlc.moe/</h3>
+        <a target="_blank" href="https://ddlc.moe/" id="ddlc_zip">Descargar archivo</a>
         <div class="mod_files">
           <input v-model="modFiles" type="text" required placeholder="C:\ubicacion" name="ubicacion" >
           <button @click="pasteClipboard" class="image_button" >
@@ -67,6 +67,10 @@ const selectAndExtractZip = async () => {
     if (success) {
       swalInstance.close();
       Swal.fire('Éxito', 'Archivo descomprimido con éxito', 'success');
+      const folderExists = await window.api.checkFolderExists();
+      if (!folderExists) {
+        router.push({ name: 'Home' }); // Redirigir a otra vista si la carpeta no existe
+      } 
     } else {
       swalInstance.close();
       Swal.fire('Error', 'Error al descomprimir el archivo', 'error');
@@ -79,6 +83,13 @@ const selectAndExtractZip = async () => {
     
   
   <style scoped>
+  #ddlc_zip{
+    padding: 1%;
+    border-radius: 10px;
+    color: white;
+    text-decoration: none;
+    background: #e016d1;
+  }
   .readonly-input {
     opacity: 0.5;
     display: none;
@@ -86,9 +97,9 @@ const selectAndExtractZip = async () => {
   .ventana{
       border: solid 3px #e016d1;
       width: 100%;
-      height: 100%;
+      height: 99% !important;
       background: #e016d1;
-      border-radius: 10px;
+      border-radius: 5px;
       filter: drop-shadow(5px 5px 10px black);
   }
   .ventana h3{

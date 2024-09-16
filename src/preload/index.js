@@ -65,7 +65,9 @@ contextBridge.exposeInMainWorld('api', {
 
   // Método para solicitar la descarga de un archivo
   downloadFile: (fileUrl) => ipcRenderer.send('download-file', fileUrl),
-  
+  cancelDownload: () => ipcRenderer.send('cancel-download'), // Envía la señal para cancelar
+   // Agregar el listener para download-cancelled
+   onDownloadCancelled: (callback) => ipcRenderer.on('download-cancelled', (event, message) => callback(message)),
   // Manejar el progreso de la descarga
   onDownloadError: (callback) => ipcRenderer.on('download-error', callback),
   onUnzipError: (callback) => ipcRenderer.on('unzip-error', callback),

@@ -542,6 +542,7 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
       console.error('Error al abrir la carpeta persistente:', error);
     }
   });
+  //eliminar archivo de config para cambiar ruta
   ipcMain.handle('delete-config-json', async () => {
     try {
       const username = os.userInfo().username;
@@ -574,6 +575,13 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
     }
   });
 
+  let currentRequest = null; // Variable global para almacenar el proceso de descarga actual
+  let fileStream = null;
+  let currentFilePath = '';  // Variable para almacenar la ruta del archivo descargado
+  // Variable para asegurar que se cierre el stream
+  let isStreamClosed = false;
+
+  //descargar archivo
   ipcMain.on('download-file', async (event, fileUrl) => {
     try {
       const basePath = await getBasePath();
@@ -581,7 +589,7 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
       const ident = Math.floor(Math.random() * (999 - 111 + 1) + 111);
       const name_zip = 'mod_' + String(ident) + ".zip";
       const filePath = join(downloadPath, name_zip);
-  
+      currentFilePath = filePath; // Guardar la ruta para eliminarla si se cancela la descarga
       if (!fsExtra.existsSync(downloadPath)) {
         fsExtra.mkdirSync(downloadPath, { recursive: true });
       }
@@ -591,6 +599,7 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
       const diskInfo = await checkDiskSpace(diskPath);
   
       const request = net.request(fileUrl);
+      currentRequest = request; // Guardamos la referencia de la solicitud actual
       let totalBytes = 0;
       let receivedBytes = 0;
   
@@ -604,13 +613,17 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
             return;
           }
   
-          const file = fsExtra.createWriteStream(filePath);
-          response.on('data', (chunk) => {
-            file.write(chunk);
+          fileStream = fsExtra.createWriteStream(filePath);
+          isStreamClosed = false; // Reiniciar el estado del stream
+          // Listener para asegurarse de que el stream se cierra
+          fileStream.on('close', () => {
+            isStreamClosed = true; // El stream se ha cerrado correctamente
           });
+          response.pipe(fileStream);
   
           response.on('end', () => {
-            file.end(() => {
+            fileStream.end(() => {
+              fileStream.close();
               console.log('Archivo descargado completamente');
   
               // Verificar el tamaño del archivo antes de descomprimir
@@ -654,8 +667,34 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
       event.sender.send('download-error', `Error general: ${error.message}`);
     }
   });
+  // Al cancelar la descarga
+ipcMain.on('cancel-download', async (event) => {
+  if (currentRequest) {
+    currentRequest.abort(); // Cancelar la solicitud de descarga
+  }
 
+  if (fileStream) {
+    fileStream.close(); // Intentar cerrar el stream si está abierto
+  }
 
+  // Intentamos eliminar después de asegurarnos de que el stream se cerró
+  const interval = setInterval(async () => {
+    if (isStreamClosed) { // Solo cuando el stream esté cerrado
+      clearInterval(interval); // Detener el intervalo
+
+      if (currentFilePath) {
+        console.log('Eliminando archivo:', currentFilePath);
+        const deleteResult = await deleteFolderOrFile(currentFilePath);
+        if (deleteResult.success) {
+          event.sender.send('download-cancelled', deleteResult.message);
+        } else {
+          console.error(`Error al eliminar archivo: ${deleteResult.message}`);
+        }
+        
+      }
+    }
+  }, 100); // Verificar cada 100 ms si el stream está cerrado
+});
 });
 
 app.on('window-all-closed', () => {

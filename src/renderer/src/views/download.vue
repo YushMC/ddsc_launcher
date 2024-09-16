@@ -1,7 +1,7 @@
 <template>
   <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
     <div class="name_ventana">
-        <h3>Descarga Directa</h3>
+        <h3>Descargar</h3>
         <router-link to="/"><h3>x</h3></router-link>
       </div>
     <div class="container_inicio">
@@ -36,10 +36,12 @@
 <script setup>
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
+import { useRouter } from 'vue-router';
 
 const isLoading = ref(false);
 const selectedOption = ref('');
 const currentFileName = ref('');
+const router = useRouter();
 
 const setLoadingCursor = () => {
   document.body.style.cursor = 'progress';
@@ -53,6 +55,10 @@ const resetCursor = () => {
 
 const descargar = async () => {
   try {
+    const folderExists3 = await window.api.checkFolderExists();
+    if (!folderExists3) {
+      router.push({ name: 'DDLC' }); // Redirigir a otra vista si la carpeta no existe
+    }
     // Verificar espacio en disco antes de iniciar la descarga
     const basePath = await window.api.getBasePath();
     Swal.fire({
@@ -122,20 +128,21 @@ const descargar = async () => {
 };
 
 function downloadFile(nombre, enlace, exeDDLC1) {
-  Swal.close()
-  Swal.fire({
+  Swal.close();
+  const swalInstance = Swal.fire({
     title: `Descargando \n${nombre}`,
     html: 'Por favor, espere mientras se descarga el archivo.<br>Este proceso puede durar algún tiempo...',
     allowOutsideClick: false,
+    showConfirmButton: true,
+    showCancelButton: true,
+    cancelButtonText: 'Cancelar',
     showConfirmButton: false,
     didOpen: () => {
       Swal.showLoading();
       window.api.downloadFile(enlace);
     }
   });
-  
 
-  // Manejamos los errores durante la descarga
   window.api.onDownloadError((err) => {
     Swal.fire({
       icon: 'error',
@@ -144,7 +151,6 @@ function downloadFile(nombre, enlace, exeDDLC1) {
     });
   });
 
-  // Cuando la descarga se completa
   window.api.onDownloadComplete(() => {
     Swal.fire({
       title: 'Descomprimiendo archivo descargado...',
@@ -154,8 +160,6 @@ function downloadFile(nombre, enlace, exeDDLC1) {
     });
   });
 
-  // Manejamos errores en la extracción
-  
   window.api.onUnzipError((err) => {
     Swal.fire({
       icon: 'error',
@@ -164,10 +168,33 @@ function downloadFile(nombre, enlace, exeDDLC1) {
     });
   });
 
-  // Cuando la extracción se completa
   window.api.onExtractionComplete(() => {
     Swal.close();
     crearCarpeta(nombre, exeDDLC1);
+  });
+
+  window.api.onDownloadCancelled(() => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Descarga cancelada',
+      text: 'La descarga ha sido cancelada y los archivos han sido eliminados.'
+    });
+  });
+
+  swalInstance.then((result) => {
+    if (result.dismiss === Swal.DismissReason.cancel) {
+      window.api.cancelDownload();
+      Swal.fire({
+        icon: 'info',
+        title: 'Cancelando...',
+        text: 'Por favor, espere mientras se cancela la descarga y se eliminan los archivos.',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+    }
   });
 }
 
@@ -203,7 +230,7 @@ async function copiarACarpetaArchivosBase(mod_nombre, exeDDLC3) {
     if (exeDDLC3 === true) {
       const src = `${basePath}\\DDLC-1.1.1-pc`;
       Swal.fire({
-        title: 'Copiando archivos base a carpeta generada...',
+        title: 'Copiando archivos base de DDLC a carpeta generada...',
         allowOutsideClick: false,
         showConfirmButton: false,
         didOpen: () => Swal.showLoading()
@@ -228,7 +255,7 @@ async function copiarACarpetaArchivosBase(mod_nombre, exeDDLC3) {
 async function startCopy(src_ruta, dest_ruta) {
   Swal.fire({
     title: 'Iniciando la copia de archivos del mod...',
-    html: 'Preparando archivos...',
+    html: 'Copiando archivos...',
     showConfirmButton: false,
     allowOutsideClick: false,
     didOpen: () => Swal.showLoading()
@@ -287,9 +314,10 @@ async function deleteFolderOrFile() {
 }
 .ventana{
     border: solid 3px #e016d1;
-    width: 70%;
+    width: 100%;
+    height: 99% !important;
     background: #e016d1;
-    border-radius: 10px;
+    border-radius: 5px;
     filter: drop-shadow(5px 5px 10px black);
 }
 .name_ventana{
@@ -326,7 +354,7 @@ select{
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    height: 95%;
+    height: 93%;
     border-radius: 5px;
     background-image: url('https://www.dokidokispanish.club/assets/ddlc/gui/tilebg.png');
     background-repeat: repeat;

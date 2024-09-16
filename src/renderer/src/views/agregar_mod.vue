@@ -68,7 +68,11 @@
 <script setup>
 import Swal from 'sweetalert2'
 import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+
 import axios from 'axios';
+
+const router = useRouter();
 
 const modName = ref('')
 const isReadonly = ref(false);
@@ -86,7 +90,7 @@ const filteredMods = computed(() => {
 
 const fetchMods = async () => {
   try {
-    const response = await axios.get('https://www.dokidokispanish.club/api_ddsc/mods/');
+    const response = await axios.get('https://www.dokidokispanish.club/api_ddsc/mods/traductions_and_mods');
     mods.value = response.data.results.map(mod => mod.nombre);
     isDataLoaded.value = true;
   } catch (error) {
@@ -151,6 +155,10 @@ const createFolderAndCopy = async () => {
   }
 
   try {
+    const folderExists2 = await window.api.checkFolderExists();
+    if (!folderExists2) {
+      router.push({ name: 'DDLC' }); // Redirigir a otra vista si la carpeta no existe
+    }
     setLoadingCursor(); // Cambiar cursor a "cargando"
     const basePath = await getBasePath(); // Obtener la ruta base desde el archivo de configuración
     const modFolder = modName.value.trim();
@@ -255,7 +263,7 @@ window.api.onCopyProgress((data) => {
 async function startCopy(src_ruta,dest_ruta) {
   Swal.fire({
     title: 'Iniciando la copia...',
-    html: 'Preparando archivos...',
+    html: 'Copiando archivos...',
     showConfirmButton: false,
     allowOutsideClick: false,
     allowEscapeKey: false,
@@ -296,9 +304,10 @@ onMounted(() => {
 }
 .ventana{
     border: solid 3px #e016d1;
-    width: 70%;
+    width: 100%;
+    height: 99% !important;
     background: #e016d1;
-    border-radius: 10px;
+    border-radius: 5px;
     filter: drop-shadow(5px 5px 10px black);
 }
 .ventana h3{
@@ -358,7 +367,7 @@ button:hover > .content_text_mod{
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    height: 95%;
+    height: 93%;
     border-radius: 5px;
     background-image: url('https://www.dokidokispanish.club/assets/ddlc/gui/tilebg.png');
     background-repeat: repeat;

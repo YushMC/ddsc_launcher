@@ -292,10 +292,10 @@ const runMod = async () => {
 }
 .ventana {
   width: 100%;
-  height: 95%;
+  height: 100%;
   border: solid 3px #e016d1;
   background: #e016d1;
-  border-radius: 10px;
+  border-radius: 5px;
   filter: drop-shadow(5px 5px 10px black);
 }
 

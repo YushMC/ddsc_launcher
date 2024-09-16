@@ -14,29 +14,29 @@
                 <div>
                     <img src="./../assets/gui/home.png" alt="Inicio" >
                 </div>
-                <hr>
+                <hr v-if="$route.path === '/inicio'">
             </router-link>
             <router-link to="/agregar" title="Agregar Mod" :class="{ active_window: $route.path === '/agregar' }">
                 <div>
                     <img src="./../assets/gui/agregar_mod.png" alt="Agregar">
                 </div>
-                <hr>
+                <hr v-if="$route.path === '/agregar'">
             </router-link>
             <router-link v-if="isOnline" to="/download" :class="{ active_window: $route.path === '/download' }">
                 <div>
                     <img src="./../assets/gui/download.png" alt="Descargar">
                 </div>
-                <hr>
+                <hr v-if="$route.path === '/download'">
             </router-link>
             <router-link to="/ajustes" title="Ajustes" :class="{ active_window: $route.path === '/ajustes' }">
                 <div>
                     <img src="./../assets/gui/settings.png" alt="Ajustes">
                 </div>
-                <hr>
+                <hr v-if="$route.path === '/ajustes'">
             </router-link>
         </div>
         <div  class="options_header">
-            <div>
+            <div v-if="isMusicPlayerRunning">
                 <i class="fa-solid fa-music" @click="toggleMusicPlayer"></i>
             </div>
             <div class="clock">
@@ -49,10 +49,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useMusicPlayer } from './../composables/useMusicPlayer';
-
 const { toggleMusicPlayer } = useMusicPlayer();
+
+import { MusicPlayerRun } from './../composables/MusicPlayerRunnig';
+const { isMusicPlayerRunning } = MusicPlayerRun();
+
 
 const imageUrl = 'https://www.dokidokispanish.club/assets/gui/Logo_DDSC.png'
 
@@ -123,7 +126,7 @@ header{
     position: fixed;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     bottom: 0;
     background:rgba(255,255,255,0.8);
@@ -218,10 +221,11 @@ h5{
     width: 48px;
 }
 .options_header{
-    width: 20%;
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 2%;
+    width: 30%;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: center;
 }
 .options_header div:first-child{
     width: 100%;
@@ -230,11 +234,11 @@ h5{
     align-items: center;
 }
 .options_header div:first-child i{
-    margin: 2%;
-    padding: 5%;
+    padding: 2%;
     transition: all 0.3s linear;
     font-size: 1.5em;
     border-radius: 5px;
+    margin-right: 2%;
 }
 .options_header div:first-child i:hover{
     background-color: rgba(0, 0, 0, 0.555);
@@ -243,6 +247,7 @@ h5{
 }
 
 .clock {
+width: 40% !important;
   font-size: 1rem;
   font-family: 'Arial', sans-serif;
   text-align: center;

@@ -58,8 +58,13 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 //controlar la ventana (visibilidad)
 import { useMusicPlayer } from './../composables/useMusicPlayer';
-import { repeat } from 'lodash';
 const { isMusicPlayerVisible } = useMusicPlayer();
+
+//mostrar icono de reproduccion
+import { MusicPlayerRun } from './../composables/MusicPlayerRunnig';
+const { toggleMusicPlayerRunning } = MusicPlayerRun();
+
+const MusicPlayerRunnning_local = ref(false);
 //variables para almacenar las canciones y el tiempo
 const songs = ref([]);
 const currentSongIndex = ref(0);
@@ -95,6 +100,10 @@ const play_pause = () => {
     audio.value.pause();
     pausa_play.value = false;
   } else {
+    if(MusicPlayerRunnning_local.value==false){
+      toggleMusicPlayerRunning();
+      MusicPlayerRunnning_local.value = !MusicPlayerRunnning_local.value;
+    }
     if (audio.value.paused && audio.value.src !== currentSong.value.src) {
       loadAndPlaySong();
     }
@@ -109,6 +118,10 @@ const stop = () => {
   audio.value.pause();
   audio.value.currentTime = 0;
   pausa_play.value = false;
+  if(MusicPlayerRunnning_local.value==true){
+    toggleMusicPlayerRunning();
+    MusicPlayerRunnning_local.value = !MusicPlayerRunnning_local.value
+  }
 };
 //cancion anterior
 const prevSong = () => {

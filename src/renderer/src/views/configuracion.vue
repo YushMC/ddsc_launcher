@@ -32,11 +32,27 @@ import Swal from 'sweetalert2'
 
 // Lista de imágenes disponibles
 const images = ref([
+  //imagenes de mods
   'https://www.dokidokispanish.club/assets/capturas/Celestial_Restraint/sayo1.png',
   'https://www.dokidokispanish.club/assets/capturas/meni_cuquis/cap_1.png',
   'https://www.dokidokispanish.club/assets/capturas/esquizofrenia/banner.jpg',
-  'https://www.dokidokispanish.club/assets/capturas/Cardboard_Box/thumbnail.d0fcb78.jpg',
-  'https://www.dokidokispanish.club/assets/capturas/Love_Torn/cap_1.png',
+  'https://www.dokidokispanish.club/assets/capturas/mexican_club/ddmc.gif',
+  'https://www.dokidokispanish.club/assets/capturas/mexican_club/cap_1.png',
+  'https://www.dokidokispanish.club/assets/capturas/christmas_time/cap_1.png',
+  'https://www.dokidokispanish.club/assets/capturas/Doki_Doki_Recovery_Project/140%20sin%20t%C3%ADtulo_20240826160042.png',
+  //imagenes o edits de escenas del ddlc
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/1.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/2.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/3.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/4.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/5.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/6.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/7.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/8.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/9.png',
+  'https://www.dokidokispanish.club/assets/ddlc/cgs/10.png',
+  'https://www.dokidokispanish.club/assets/capturas/Doki_Chronicles_Longing_to_Burn_Alpha/3image.png',
+  'https://www.dokidokispanish.club/assets/capturas/Doki_Chronicles_Longing_to_Burn_Alpha/4image.png',
   //imagenes por defecto
   'https://www.dokidokispanish.club/assets/gui/banner_inicio.jpg',
   'https://www.dokidokispanish.club/assets/gui/Dania.png',
@@ -90,9 +106,10 @@ onMounted(() => {
 <style scoped>
 .ventana{
   width: 100%;
+  height: 99% !important;
     border: solid 3px #e016d1;
     background: #e016d1;
-    border-radius: 10px;
+    border-radius: 5px;
     filter: drop-shadow(5px 5px 10px black);
     height: 100%;
     overflow: hidden;
