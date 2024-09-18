@@ -4,8 +4,9 @@ import Settings from '../views/configuracion.vue'
 import AddMod from '../views/agregar_mod.vue'
 import DDLC from '../views/agregar_ddlc.vue'
 import download from '../views/download.vue'
-import Escritorio from '../views/sin_ventana.vue'
-import Details_mod from '../views/details_mod.vue'
+import Escritorio from '../views/Escritorio.vue'
+import info from '../views/info.vue'
+import Info from '../views/info.vue'
 
 const routes = [
   {
@@ -39,10 +40,9 @@ const routes = [
     component: download
   },
   {
-    path:'/detail/:modName',
-    name: 'Detalles',
-    component: Details_mod,
-    props: true
+    path:'/informacion',
+    name: 'Info',
+    component: Info
 
   }
 ]

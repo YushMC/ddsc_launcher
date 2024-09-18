@@ -36,8 +36,8 @@
 <script setup>
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
-import { useRouter } from 'vue-router';
 
+import { useRouter } from 'vue-router';
 const isLoading = ref(false);
 const selectedOption = ref('');
 const currentFileName = ref('');
@@ -276,11 +276,11 @@ async function startCopy(src_ruta, dest_ruta) {
   });
   deleteFolderOrFile();
   if (success) {
-    Swal.fire('Mod descargado!', 'Todos los archivos del mod fueron descargados y copiados correctamente.\nEl mod aparacerá en la página de inicio', 'success').then(() => {window.location.reload(); // Recargar la página
+    Swal.fire('Mod descargado!', 'Todos los archivos del mod fueron descargados y copiados correctamente.\nEl mod aparacerá en la página de inicio', 'success').then(() => {fetchMods();   // Recargar la ruta actual sin recargar toda la página
     });
     resetCursor();
   } else {
-    Swal.fire('Error',` Error al copiar archivos: ${error}`, 'error').then(() => {window.location.reload(); // Recargar la página
+    Swal.fire('Error',` Error al copiar archivos: ${error}`, 'error').then(() => {fetchMods();   // Recargar la ruta actual sin recargar toda la página
     });
   }
 }

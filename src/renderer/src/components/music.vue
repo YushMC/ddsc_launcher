@@ -92,6 +92,10 @@ const playSongFromList = (index) => {
   currentSongIndex.value = index;
   currentSong.value = songs.value[currentSongIndex.value];
   pausa_play.value = true
+  if(MusicPlayerRunnning_local.value==false){
+      toggleMusicPlayerRunning();
+      MusicPlayerRunnning_local.value = !MusicPlayerRunnning_local.value;
+  }
   loadAndPlaySong(true); // Reiniciar currentTime al cambiar de canción
 };
 //pausar o reanudar cancion

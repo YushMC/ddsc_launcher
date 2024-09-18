@@ -47,12 +47,6 @@ async function getBasePath() {
         await fsExtra.ensureDir(join(finalFolderPath,"mods"));
         console.log(`Directorio de mod creado: ${modsPath}`);
     }
-    // Asegúrate de que la carpeta 'DDLC-1.1.1-pc' exista
-    if (!fsExtra.existsSync(join(finalFolderPath,"DDLC-1.1.1-pc"))) {
-      // Crear carpetas necesarias si no existen
-        await fsExtra.ensureDir(join(finalFolderPath,"DDLC-1.1.1-pc"));
-        console.log(`Directorio de DDLC creado: ${modsPath}`);
-    }
     
     return finalFolderPath;
   }
@@ -287,6 +281,7 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
     try {
       const basePath = await getBasePath();
       const finalPath = join(basePath);
+        
       await fsExtra.ensureDir(finalPath); // Crear carpeta final si no existe
   
       const zipStream = fsExtra.createReadStream(zipFilePath);

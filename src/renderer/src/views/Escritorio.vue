@@ -25,11 +25,15 @@
                 <img src="./../assets/gui/open_folder.png" alt="Archicos">
                 <h5>Explorador</h5>
             </div>
+            <router-link class="icono" to="/informacion">
+                <img src="./../assets/gui/info.png" alt="Archicos">
+                <h5>Información</h5>
+            </router-link>
         </div>
         <div class="mods_iconos" v-if="isOnline">
             <div class="mod_icono" v-for="mod in modsListInstalled" :key="mod.id" :value="mod" >
-                <img :src="mod.url_logo" alt="" @click="runModInstalled(mod.nombre)" :title=" mod.nombre">
-                <h5 @click="runModInstalled(mod.nombre)" :title=" mod.nombre">{{ mod.nombre }}</h5>
+                <img :src="mod.url_logo" alt="{{mod.nombre}}" @click="runModInstalled(mod.nombre)" :title=" mod.nombre" style="cursor: pointer;">
+                <h5 @click="runModInstalled(mod.nombre)" :title=" mod.nombre" style="cursor: pointer;">{{ mod.nombre }}</h5>
             </div>
         </div>
     </div>
@@ -37,7 +41,7 @@
 
 <script setup>
 import { ref,onMounted } from 'vue'
-import { useMusicPlayer } from './../composables/useMusicPlayer';
+import { useMusicPlayer } from '../composables/useMusicPlayer';
 import Swal from 'sweetalert2'
 
 const { toggleMusicPlayer } = useMusicPlayer();
@@ -146,7 +150,7 @@ const runModInstalled = async (selectedMod) => {
     flex-direction: column !important;
     justify-content: center !important;
     align-items: center !important;
-    margin: 10% 0 !important;
+    margin: 9% 0 !important;
     text-decoration: none;
     filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.555));
     cursor: pointer;
@@ -167,10 +171,10 @@ const runModInstalled = async (selectedMod) => {
     width: 90%;
     height: 95%;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
     gap: 4%;
     margin: 1% 2%;
-    cursor: pointer;
+    
 }
 .mods_iconos .mod_icono{
     width: 100%;

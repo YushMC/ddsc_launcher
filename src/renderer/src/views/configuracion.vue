@@ -19,7 +19,14 @@
               <hr>
             </div>
             <div class="content_wallpapers">
-              <img v-for="image in images" :src="image" :key="image" @click="setAsBackground(image)" class="wallpaper" />
+              <img v-for="image in images"
+               :src="image" 
+               :key="image" 
+               @click="setAsBackground(image)"  
+               :class="{
+                  wallpaper: true, 
+                  wallpaper_selected: imagen_seleccion_mostrar === image
+                  }"/>
             </div>
          </div>
       </div>
@@ -29,7 +36,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import Swal from 'sweetalert2'
-
+const imagen_seleccion_mostrar = ref('');
 // Lista de imágenes disponibles
 const images = ref([
   //imagenes de mods
@@ -55,15 +62,19 @@ const images = ref([
   'https://www.dokidokispanish.club/assets/capturas/Doki_Chronicles_Longing_to_Burn_Alpha/4image.png',
   //imagenes por defecto
   'https://www.dokidokispanish.club/assets/gui/banner_inicio.jpg',
-  'https://www.dokidokispanish.club/assets/gui/Dania.png',
+  'https://www.dokidokispanish.club/assets/gui/Winter_Neva.png',
   'https://www.dokidokispanish.club/assets/gui/Mauve.png'
 ]);
 
 // Función para cambiar el fondo y guardar en localStorage
 const setAsBackground = (image) => {
+  imagen_seleccion_mostrar.value = image;
   localStorage.setItem('backgroundImage', image); // Guardar en localStorage
   document.body.style.backgroundImage = `url(${image})`; // Cambiar el fondo
+  console.log('Imagen seleccionada:', imagen_seleccion_mostrar.value);
 };
+
+
 
 // Abrir el explorador de archivos en la ruta deseada
 const openFileExplorer = async () => {
@@ -95,9 +106,10 @@ const fetchBasePath = async () => {
 
 onMounted(() => {
   fetchBasePath()
-  const savedImage = localStorage.getItem('backgroundImage');
-  if (savedImage) {
-    document.body.style.backgroundImage = `url(${savedImage})`;
+  const savedImage3 = localStorage.getItem('backgroundImage');
+  if (savedImage3) {
+    imagen_seleccion_mostrar.value = savedImage3;
+    console.log('Imagen guardada:', imagen_seleccion_mostrar.value);
   }
 })
 </script>
@@ -206,7 +218,12 @@ button{
   padding: 1%;
   border-radius: 5px;
   margin: 1% 0;
-  border: solid 2px black;
+  border: solid 2px transparent;
+}
+.content_wallpapers .wallpaper_selected{
+  border: solid 2px #e016d1 !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.5) !important;
 }
 .wallpaper img{
   width: 100%;

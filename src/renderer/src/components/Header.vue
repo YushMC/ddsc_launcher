@@ -2,9 +2,9 @@
     <header>
         <div class="container_header">
             <div title="Menu" style="margin:0 1%;cursor:pointer;">
-                <input type="checkbox" id="menu" >
+                <input type="checkbox" id="menu">
                 <label for="menu" style="cursor:pointer;">
-                    <img  :src="imageUrl" style="width: 40px;filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.555));" alt="Menu" >
+                    <img  :src="imageUrl" style="width: 40px;filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.555));" alt="Menu" @click="ir_escritorio">
                 </label>
                 <div class="menu_contextual" style="bottom:5%;">
                     <a href="#" @click.prevent="closeApp"><i class="fa-solid fa-power-off"></i> Apagar</a>
@@ -36,8 +36,16 @@
             </router-link>
         </div>
         <div  class="options_header">
-            <div v-if="isMusicPlayerRunning">
-                <i class="fa-solid fa-music" @click="toggleMusicPlayer"></i>
+            <div>
+                <div v-if="!isOnline">
+                    <img src="./../assets/gui/out_wifi.png" alt="" style="padding: 2%;">
+                </div>
+                <div v-if="isOnline">
+                    <i class="fa-solid fa-wifi" style="cursor:default;"></i>
+                </div>
+                <div v-if="isMusicPlayerRunning">
+                    <i class="fa-solid fa-music" @click="toggleMusicPlayer"></i>
+                </div>
             </div>
             <div class="clock">
                 <span>{{ time }}</span>
@@ -50,6 +58,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+
+import { useRouter } from 'vue-router';
+const router = useRouter();
+
+
 import { useMusicPlayer } from './../composables/useMusicPlayer';
 const { toggleMusicPlayer } = useMusicPlayer();
 
@@ -61,6 +74,9 @@ const imageUrl = 'https://www.dokidokispanish.club/assets/gui/Logo_DDSC.png'
 
 const closeApp = () => {
   window.api.closeApp(); // Llama a la función expuesta en preload.js
+}
+const ir_escritorio = () =>{
+    router.push({ name: 'escritorio' });
 }
 const time = ref('');
 
@@ -126,14 +142,14 @@ header{
     position: fixed;
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     bottom: 0;
     background:rgba(255,255,255,0.8);
     backdrop-filter: blur(2px);
 }
 .container_header{
-    width: 85%;
+    width: 80%;
     height: 100%;
     margin: 0 auto;
     display: flex;
@@ -221,40 +237,36 @@ h5{
     width: 48px;
 }
 .options_header{
-    width: 30%;
+    width: 20%;
     display: flex;
     flex-direction: row;
     justify-content: end;
     align-items: center;
 }
-.options_header div:first-child{
-    width: 100%;
+.options_header div{
+    width: 40%;
     display: flex;
-    justify-content: end;
+    justify-content: space-between;
     align-items: center;
 }
-.options_header div:first-child i{
-    padding: 2%;
+.options_header div i{
     transition: all 0.3s linear;
     font-size: 1.5em;
     border-radius: 5px;
-    margin-right: 2%;
-}
-.options_header div:first-child i:hover{
-    background-color: rgba(0, 0, 0, 0.555);
-    color: white;
+    margin: 0 2% !important;
     cursor: pointer;
 }
 
 .clock {
-width: 40% !important;
-  font-size: 1rem;
-  font-family: 'Arial', sans-serif;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+    width: 60% !important;
+    padding-right: 2% !important;
+    font-size: 1rem;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 .clock > span{
     text-wrap: nowrap !important;
