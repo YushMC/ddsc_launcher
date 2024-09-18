@@ -125,7 +125,7 @@ function createWindow() {
       enableRemoteModule: true,
       valueOfwebSecurity: false 
     },
-    title: `Doki Doki Spanish Club Launcher - Beta v${packageJson.version}`,
+    title: `Doki Doki Spanish Club Launcher - v${packageJson.version}`,
   })
 
   mainWindow.on('ready-to-show', () => {
