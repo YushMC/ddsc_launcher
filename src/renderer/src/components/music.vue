@@ -2,13 +2,12 @@
   <!-- Contenedor de audio -->
   <audio ref="audio" preload="auto">
     <source :src="currentSong.src" type="audio/mpeg" />
-    Tu navegador no soporta la reproducción de audio.
   </audio>
   <!-- Ventana principal-->
   <div v-if="isMusicPlayerVisible" class="card_music">
     <!-- Titulo de la ventana-->
     <div class="titulo_ventana_music">
-      <h2>Reproductor de Música (Beta)</h2>
+      <h2>Reproductor de Música</h2>
       <h2 @click="ocultarMusica" style="cursor: pointer;">-</h2>
     </div>
     <!-- Lista de canciones-->

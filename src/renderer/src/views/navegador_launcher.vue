@@ -2,7 +2,6 @@
     <div class="ventana">
       <div class="name_ventana">
         <h3>Navegador</h3>
-        <h6 style="color:white;">Esta versión no soporta el sistema de cuentas!</h6>
         <router-link to="/"><h3>x</h3></router-link>
       </div>
         <div class="container_inicio">
