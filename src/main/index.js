@@ -344,6 +344,20 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
     }
   });
 
+  //manejador para crear nuevo folder al cambiar ubicación
+  ipcMain.handle('create-new-folder-rute', async (event, newRute) => {
+    try {
+      await fsExtra.ensureDir(join(newRute,'DDSC_Launcher'));
+      await fsExtra.ensureDir(join(newRute,'DDSC_Launcher','DDLC-1.1.1-pc'))
+      await fsExtra.ensureDir(join(newRute,'DDSC_Launcher', 'mods'));
+      console.log(`Directorio cambiados`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error al crear el directorio:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
   // Manejador para seleccionar una carpeta
   ipcMain.handle('select-folder', async () => {
     const result = await dialog.showOpenDialog({
@@ -546,6 +560,20 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
       console.log(`Eliminando archivo: ${userPath}`);
     } catch (error) {
       console.error('Error al eliminar:', error);
+    }
+  });
+  //cambiar config.json o actualizar
+  ipcMain.handle('new-file-config-change', async (event, { newRuteConfig })=>{
+    console.log('Valor recibido de newRuteConfig: ', newRuteConfig);
+    try{
+      const ruta_final = String(newRuteConfig);
+      const finalFolderPath = join(ruta_final, 'DDSC_Launcher');
+      console.log('ruta a guardar: '+ finalFolderPath)
+      // Guardar la ruta en el archivo de configuración
+      const config = { folderPath: finalFolderPath };
+      fsExtra.writeFileSync(configPath, JSON.stringify(config), 'utf8');
+    }catch(err){
+      console.error('Error al cambiar config:', err);
     }
   });
   //abrir carpeta raiz

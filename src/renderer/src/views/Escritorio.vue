@@ -21,10 +21,10 @@
                 <img src="./../assets/gui/music.png" alt="Música">
                 <h5>Música</h5>
             </div>
-            <div class="icono" @click="openExplorerRaiz">
-                <img src="./../assets/gui/open_folder.png" alt="Archicos">
-                <h5>Explorador</h5>
-            </div>
+            <router-link class="icono" to="/navegador">
+                <img src="./../assets/gui/navegador.png" alt="Navegaodr">
+                <h5>Navegador</h5>
+            </router-link>
             <router-link class="icono" to="/informacion">
                 <img src="./../assets/gui/info.png" alt="Archicos">
                 <h5>Información</h5>
@@ -171,9 +171,10 @@ const runModInstalled = async (selectedMod) => {
     width: 90%;
     height: 95%;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(4%, 1fr));
     gap: 4%;
     margin: 1% 2%;
+    grid-template-rows: repeat(auto-fill, minmax(10%, 1fr))
     
 }
 .mods_iconos .mod_icono{

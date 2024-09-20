@@ -34,6 +34,12 @@
                 </div>
                 <hr v-if="$route.path === '/ajustes'">
             </router-link>
+            <router-link to="/navegador" title="Navegador" :class="{ active_window: $route.path === '/navegador' }">
+                <div>
+                    <img src="./../assets/gui/navegador.png" alt="Ajustes">
+                </div>
+                <hr v-if="$route.path === '/navegador'">
+            </router-link>
         </div>
         <div  class="options_header">
             <div>

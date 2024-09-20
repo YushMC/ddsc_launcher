@@ -2,6 +2,9 @@
   <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
     <div class="name_ventana">
         <h3>Descargar</h3>
+        <router-link 
+        :to="{ name: 'Navegador', query: { url: 'https://launcher.dokidokispanish.club/' } }" 
+        id="ayuda_directa">Ayuda</router-link>
         <router-link to="/"><h3>x</h3></router-link>
       </div>
     <div class="container_inicio">
@@ -276,7 +279,7 @@ async function startCopy(src_ruta, dest_ruta) {
   });
   deleteFolderOrFile();
   if (success) {
-    Swal.fire('Mod descargado!', 'Todos los archivos del mod fueron descargados y copiados correctamente.\nEl mod aparacerá en la página de inicio', 'success').then(() => {fetchMods();   // Recargar la ruta actual sin recargar toda la página
+    Swal.fire('Mod descargado!', 'Todos los archivos del mod fueron descargados y copiados correctamente.\nEl mod aparacerá en la página de inicio', 'success').then(() => {window.location.reload(); // Recargar la página   // Recargar la ruta actual sin recargar toda la página
     });
     resetCursor();
   } else {
@@ -329,6 +332,12 @@ async function deleteFolderOrFile() {
 .name_ventana > a{
   text-decoration: none;
   margin-right: 2%;
+}
+#ayuda_directa{
+  color: #fff;
+  padding:0.5% 2%;
+  border-radius: 5px;
+  border: 2px solid #fff;
 }
 .name_ventana > a > h3:last-child{
   font-size: 2em;

@@ -68,7 +68,7 @@ const selectAndExtractZip = async () => {
       swalInstance.close();
       Swal.fire('Éxito', 'Archivo descomprimido con éxito', 'success');
       const folderExists = await window.api.checkFolderExists();
-      if (!folderExists) {
+      if (folderExists) {
         router.push({ name: 'Home' }); // Redirigir a otra vista si la carpeta no existe
       } 
     } else {

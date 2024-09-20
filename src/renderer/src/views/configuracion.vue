@@ -7,9 +7,9 @@
         <div class="container_inicio">
           <div class="content_card">
             <div style="display: grid;grid-template-columns: repeat(3,1fr);width: 80%; gap: 2%;">
-              <button @click="cambiarFolder" style="background-color: red;"><i class="fa-solid fa-rotate-right"></i> Cambiar ubicación</button>
-            
-            
+              <router-link to="/change_rute" id="changeRuta"><i class="fa-solid fa-rotate-right"></i> Cambiar ubicación<br>Ruta actual: 
+                {{ rutaBase }}
+              </router-link>
               <button @click="openFileExplorer"><i class="fa-solid fa-file-shield"></i> Abrir carpeta de archivos persistentes</button>
             
               <button @click="openExplorerRaiz"><i class="fa-regular fa-folder-open"></i> Abrir carpeta raiz</button>
@@ -80,15 +80,7 @@ const setAsBackground = (image) => {
 const openFileExplorer = async () => {
   await window.api.openFolderPersistent()
 }
-const cambiarFolder = async () => {
-  Swal.fire({
-      icon: "info",
-      title: `Se abrirá la antigua ubicación.`,
-      html: `Si cuenta con archivos de mods, así como los archivos originales de DDLC, te recomendamos copiarlos y pegarlos en la nueva ubicación.<br><b>Los archivos no se eliminarán</b><br><br>Para acceder a la nueva ubicación, ve a inicio, escoge la nueva ubicación y abre la carpeta raiz desde la configuración.`
-    });
-  await window.api.openFolderRaiz()
-  await window.api.deleteFileConfig()
-}
+
 const openExplorerRaiz = async () => {
   await window.api.openFolderRaiz()
 }
@@ -116,6 +108,14 @@ onMounted(() => {
   
 
 <style scoped>
+#changeRuta{
+  color: white;
+  text-align: center;
+  background: red;
+  padding: 5%;
+  border-radius: 5px;
+  text-decoration: none;
+}
 .ventana{
   width: 100%;
   height: 99% !important;

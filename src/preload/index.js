@@ -32,6 +32,9 @@ contextBridge.exposeInMainWorld('api', {
   openFolderMod: (ruta) => ipcRenderer.invoke('open-folder-mod', ruta),
   //crear carpeta de mod
   createModFolder: (foldername) => ipcRenderer.invoke('create-mod-folder', foldername),
+  //cambiar de ruta
+  createNewFolderRute: (newRute) => ipcRenderer.invoke('create-new-folder-rute', newRute),
+  changeRuteConfig: (newRuteConfig) => ipcRenderer.invoke('new-file-config-change', newRuteConfig),
   //copiar archivos ddlc base a mod
   copyFolder: (paths) => ipcRenderer.invoke('copy-folder', paths),
   //copiar archivos de mod a carpeta creada de mod

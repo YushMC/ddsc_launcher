@@ -5,8 +5,9 @@ import AddMod from '../views/agregar_mod.vue'
 import DDLC from '../views/agregar_ddlc.vue'
 import download from '../views/download.vue'
 import Escritorio from '../views/Escritorio.vue'
-import info from '../views/info.vue'
+import Cambiar_ubicacion from '../views/cambiar_ubicacion.vue'
 import Info from '../views/info.vue'
+import navegador_launcher from '../views/navegador_launcher.vue'
 
 const routes = [
   {
@@ -43,7 +44,17 @@ const routes = [
     path:'/informacion',
     name: 'Info',
     component: Info
-
+  },
+  {
+    path: '/change_rute',
+    name: 'ChangeRute',
+    component: Cambiar_ubicacion
+  },
+  {
+    path:'/navegador',
+    name: 'Navegador',
+    component: navegador_launcher,
+    props: (route) => ({ url: route.query.url }) // Pasar la URL como prop
   }
 ]
 
