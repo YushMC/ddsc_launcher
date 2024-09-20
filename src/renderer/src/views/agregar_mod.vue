@@ -2,6 +2,9 @@
   <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
     <div class="name_ventana">
         <h3>Agregar Mod</h3>
+        <router-link 
+        :to="{ name: 'Navegador', query: { url: 'https://launcher.dokidokispanish.club/docs#modo_manual' } }" 
+        id="ayuda">Ayuda</router-link>
         <router-link to="/"><h3>x</h3></router-link>
       </div>
     <div class="container_inicio">
@@ -319,6 +322,12 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+#ayuda{
+  color: #fff;
+  padding:0.5% 2%;
+  border-radius: 5px;
+  border: 2px solid #fff;
 }
 .name_ventana > a{
   text-decoration: none;

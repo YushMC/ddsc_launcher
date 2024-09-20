@@ -3,7 +3,7 @@
     <div class="name_ventana">
         <h3>Descargar</h3>
         <router-link 
-        :to="{ name: 'Navegador', query: { url: 'https://launcher.dokidokispanish.club/' } }" 
+        :to="{ name: 'Navegador', query: { url: 'https://launcher.dokidokispanish.club/docs#modo_automatico' } }" 
         id="ayuda_directa">Ayuda</router-link>
         <router-link to="/"><h3>x</h3></router-link>
       </div>
