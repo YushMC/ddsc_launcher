@@ -14,6 +14,9 @@ function removeCopyProgressListener() {
 // Exponer APIs específicas de tu aplicación
 contextBridge.exposeInMainWorld('api', {
   ipcRenderer: ipcRenderer,
+  //actualizaciones
+  onUpdateDownloadProgress: (callback) => ipcRenderer.on('update-download-progress', (event, percent) => callback(percent)),
+  onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
   //obtener ruta base
   getBasePath: () => ipcRenderer.invoke('get-base-path'),
   //obtener mods
@@ -79,9 +82,7 @@ contextBridge.exposeInMainWorld('api', {
   onExtractionComplete: (callback) => ipcRenderer.on('extraction-complete', callback),
   //eliminar carpeta o archivo
   deleteFolderOrFile: (filePath) => ipcRenderer.invoke('delete-folder-or-file', filePath),
-  //actualizaciones
-  onUpdateDownloadProgress: (callback) => ipcRenderer.on('update-download-progress', (event, percent) => callback(percent)),
-  onUpdateDownloaded: (callback) => ipcRenderer.on('update-downloaded', callback),
+  
   //revisar espacio en disco
   checkDiskSpace: (drivePath) => ipcRenderer.invoke('check-disk-space', drivePath),
   //Crear .bat del mod
