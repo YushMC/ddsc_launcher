@@ -146,29 +146,15 @@ function createWindow() {
   autoUpdater.checkForUpdatesAndNotify(); // Verifica actualizaciones
   //si existe una actualización
   autoUpdater.on('update-available', (info) => {
-    console.log('Update available.');
-    const notification = {
-      title: 'Actualización Disponible',
-      body: 'Una nueva versión está disponible. Haga clic para instalar.',
-      icon: join(__dirname, '../../resources/Logo_DDSC-ico.ico'),
-    };
-    new Notification(notification).show();
       // Bloquear la ventana de la aplicación mientras se descarga
       mainWindow.setEnabled(false);
       autoUpdater.downloadUpdate();
   });
   //si la actualización fue descargada
   autoUpdater.on('update-downloaded', () => {
-    console.log('Update downloaded');
-    const notification = {
-      title: 'Actualización Descargada',
-      body: 'La actualización se ha descargado. La aplicación se actualizará en el próximo reinicio.',
-      icon: join(__dirname, '../../resources/Logo_DDSC-ico.ico'),
-    };
-    new Notification(notification).show();
     dialog.showMessageBox(mainWindow, {
       type: 'info',
-      buttons: ['Restart'],
+      buttons: ['Reinciar'],
       title: 'Actualización Completada',
       message: 'Actualización descargada y lista para instalar.',
       detail: 'La aplicación se reiniciará ahora para aplicar los cambios.'
@@ -184,7 +170,7 @@ function createWindow() {
   });
 
   // Ocultar el menú
-  // mainWindow.setMenu(null);
+  mainWindow.setMenu(null);
 }
 
 app.whenReady().then(() => {

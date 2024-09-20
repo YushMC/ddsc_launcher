@@ -12,6 +12,7 @@ const savedImage = localStorage.getItem('backgroundImage');
 
 <template>
   <div class="content_app">
+    <UpdateProgress />
     <div class="content_router">
       <router-view  ></router-view>
     </div>
@@ -19,7 +20,6 @@ const savedImage = localStorage.getItem('backgroundImage');
     <!-- 
     <img src="./assets/gui/beta.png" id="beta_add">
     -->
-    <UpdateProgress />
     <Music></Music>
   </div>
   

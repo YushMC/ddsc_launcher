@@ -5,10 +5,9 @@
         <router-link to="/"><h3>x</h3></router-link>
       </div>
         <div class="container_inicio">
-          <div style="display: grid;grid-template-columns: repeat(3,1fr);width: 80%; gap: 2%;margin-top: 1%;">
+          <div style="display: grid;grid-template-columns: repeat(2,1fr);width: 80%; gap: 2%;margin-top: 1%;">
               <a class="info_creators" href="https://github.com/YushMC/ddsc_launcher" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
               <a class="info_creators" href="https://discord.gg/te9qdM56br" target="_blank"><i class="fa-brands fa-discord"></i> Discord</a>
-              <a class="info_creators" href="https://www.dokidokispanish.club/" target="_blank"><i class="fa-solid fa-globe"></i> Sitio web Oficial</a>
             </div>
           <div class="content_card">
             <div>
