@@ -17,11 +17,11 @@
                 <img src="./../assets/gui/settings.png" alt="Ajustes">
                 <h5>Ajustes</h5>
             </router-link>
-            <div class="icono" @click="toggleMusicPlayer">
+            <div class="icono" @click="toggleMusicPlayer" v-if="isOnline">
                 <img src="./../assets/gui/music.png" alt="Música">
                 <h5>Música</h5>
             </div>
-            <router-link class="icono" to="/navegador">
+            <router-link class="icono" to="/navegador" v-if="isOnline">
                 <img src="./../assets/gui/navegador.png" alt="Navegaodr">
                 <h5>Navegador</h5>
             </router-link>
@@ -115,8 +115,13 @@ const runModInstalled = async (selectedMod) => {
           Swal.showLoading();
         }
     });
-    await window.api.runMod(selectedMod)
-    ejecucionInstalled.value = await window.api.getEjecucion(selectedMod)
+    await window.api.runMod(selectedMod);
+    ejecucionInstalled.value = await window.api.getEjecucion(selectedMod);
+    // Cambia estos valores según sea necesario
+    let detallesEscritorio = 'Mod: ' + selectedMod;
+    let estadoEscritorio = 'Partidas: '+ ejecucionInstalled.value;
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detallesEscritorio, estadoEscritorio, 'ddlc_icon');
     Swal.close();
     Swal.fire({
         position: 'center',
@@ -128,6 +133,24 @@ const runModInstalled = async (selectedMod) => {
     });
   }
 
+window.api.onModExecutionEnded((event, { code }) => {
+  console.log(`El proceso terminó con el código: ${code}`);
+  if (code === 0) {
+    window.electron.updateDiscordStatus();
+    // Actualiza el estado de Discord o muestra un mensaje de éxito
+    Swal.fire({
+      icon: 'success',
+      title: 'El mod ha terminado correctamente!',
+    });
+  } else {
+    // Muestra un mensaje de error si el proceso no terminó correctamente
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'El mod no terminó correctamente.',
+    });
+  }
+});
 </script>
 
 <style scoped>

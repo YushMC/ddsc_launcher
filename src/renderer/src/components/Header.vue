@@ -34,7 +34,7 @@
                 </div>
                 <hr v-if="$route.path === '/ajustes'">
             </router-link>
-            <router-link to="/navegador" title="Navegador" :class="{ active_window: $route.path === '/navegador' }">
+            <router-link v-if="isOnline" to="/navegador" title="Navegador" :class="{ active_window: $route.path === '/navegador' }">
                 <div>
                     <img src="./../assets/gui/navegador.png" alt="Ajustes">
                 </div>
@@ -45,9 +45,6 @@
             <div>
                 <div v-if="!isOnline">
                     <img src="./../assets/gui/out_wifi.png" alt="" style="padding: 2%;">
-                </div>
-                <div v-if="isOnline">
-                    <i class="fa-solid fa-wifi" style="cursor:default;"></i>
                 </div>
                 <div v-if="isMusicPlayerRunning">
                     <i class="fa-solid fa-music" @click="toggleMusicPlayer"></i>

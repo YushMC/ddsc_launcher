@@ -103,7 +103,7 @@ const runModBat = async () => {
   console.log("ruta bat: ", batFilePath)
   const result = await Swal.fire({
         title: 'Ejecutar con CMD',
-        html: "Se abrirá una ventana CMD para ejecutar el mod<br><b>USA ESTE MODO EN CASO DE PROBLEMAS O DE COMPATIBILIDAD</b>",
+        html: "Se abrirá una ventana CMD para ejecutar el mod<br><b>USA ESTE MODO EN CASO DE PROBLEMAS O DE COMPATIBILIDAD</b><br><br>En este modo, no se mostrará el estado en discord.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -267,6 +267,12 @@ const runMod = async () => {
     await window.api.runMod(selectedMod.value)
     ejecucion.value = await window.api.getEjecucion(selectedMod.value)
     Swal.close();
+    // Cambia estos valores según sea necesario
+    let detalles = 'Mod: ' + selectedMod.value;
+    let estado = 'Partidas: '+ ejecucion.value;
+    let url_details_mod = modInfo.url_sitio;
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
     Swal.fire({
         position: 'center',
         icon: "success",
@@ -277,6 +283,25 @@ const runMod = async () => {
     });
   }
 }
+
+window.api.onModExecutionEnded((event, { code }) => {
+  console.log(`El proceso terminó con el código: ${code}`);
+  if (code === 0) {
+    window.electron.updateDiscordStatus();
+    // Actualiza el estado de Discord o muestra un mensaje de éxito
+    Swal.fire({
+      icon: 'success',
+      title: 'El mod ha terminado correctamente!',
+    });
+  } else {
+    // Muestra un mensaje de error si el proceso no terminó correctamente
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'El mod no terminó correctamente.',
+    });
+  }
+});
 </script>
 
 

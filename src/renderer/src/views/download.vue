@@ -10,7 +10,7 @@
     <div class="container_inicio">
       <h2>Selecciona el mod/traducción a descargar e instalar!</h2>
       <div style="grid-template-columns: 8fr 1fr 1fr;">
-        <select v-model="selectedOption">
+        <select v-model="selectedOption" @change="fetchModInfoSelected" >
           <option value="Doki Doki Literature Club">Doki Doki Literature Club (parche en español)</option>
           <option value="Peruvian Club">Peruvian Club</option>
           <option value="Meni Cuquis">Meni Cuquis</option>
@@ -22,7 +22,7 @@
           <!-- Agrega más opciones aquí si es necesario -->
         </select>
         <button @click="descargar" class="image_button">
-          <img src="./../assets/gui/download.png" alt="Descargar" title="Descargar">
+          <img src="./../assets/gui/descarga.png" alt="Descargar" title="Descargar">
         </button>
         <button class="image_button" style="position: relative;">
           <img src="./../assets/gui/question.png" alt="about_name_mod">
@@ -31,20 +31,36 @@
           </div>
         </button>
       </div>
+      <div class="datos_mod_selected" :style="{ backgroundImage: `url(${modInfoForInstall.url_img})` }"  v-if="modInfoForInstall">
+        <div class="card">
+          <div class="datos_mod_info">
+              <div class="logo_mod">
+                <img :src="modInfoForInstall.url_logo" alt="">
+              </div>
+              <div class="datos_info_mod_extra">
+                <h2>{{ modInfoForInstall.nombre }}</h2>
+              </div>
+              
+          </div>
+          <p><b>Descripción:</b><br>
+            <br>{{ modInfoForInstall.descripcion }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
   
-
 <script setup>
 import { ref } from 'vue';
 import Swal from 'sweetalert2';
 
 import { useRouter } from 'vue-router';
+
 const isLoading = ref(false);
 const selectedOption = ref('');
 const currentFileName = ref('');
 const router = useRouter();
+const modInfoForInstall = ref(null)
 
 const setLoadingCursor = () => {
   document.body.style.cursor = 'progress';
@@ -302,19 +318,34 @@ async function deleteFolderOrFile() {
     });
   }
 }
+
+const fetchModInfoSelected = async () => {
+  console.log("buscando")
+  if (selectedOption.value) {
+    try {
+      const response = await fetch(`https://www.dokidokispanish.club/api_ddsc/mods/name/${selectedOption.value}`)
+      const data = await response.json()
+
+      // Verificar la estructura de data y data.results
+      console.log('API Response:', data) // Añadir un console.log para verificar la respuesta
+
+      if (Array.isArray(data.results) && data.results.length > 0) {
+        modInfoForInstall.value = data.results[0] // Accede al primer elemento del array
+      } else {
+        modInfoForInstall.value = null
+      }
+    } catch (error) {
+      console.error('Error al obtener información del mod:', error)
+      modInfoForInstall.value = null
+    }
+  } else {
+    modInfoForInstall.value = null
+  }
+}
 </script>
 
-
-  
-
 <style scoped>
-.readonly-input {
-  opacity: 0.5;
-  display: none;
-}
-.readonly-input-2 {
-  opacity: 0.5;
-}
+
 .ventana{
     border: solid 3px #e016d1;
     width: 100%;
@@ -369,7 +400,7 @@ select{
     background-repeat: repeat;
     background-size: inherit;
     animation: fondo_moc linear infinite 60s;
-    
+    overflow-y: auto;
 }
 .container_inicio div{
   margin: 1% 0;
@@ -437,6 +468,48 @@ button{
   border-radius: 10px;
   cursor: pointer;
   border: none;
+}
+
+.datos_mod_selected{
+  width: 80% !important;
+  display: flex !important;
+  padding: 5%;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0px 0px 80px 20px rgba(0, 0, 0, 0.1 );
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.datos_mod_selected .card{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0px 0px 10px 20px rgba(0, 0, 0, 0.1 );
+  border-radius: 10px;
+}
+.datos_mod_selected .card .datos_mod_info{
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 2%;
+}
+.datos_mod_selected .logo_mod{
+  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center;
+}
+.datos_mod_selected .logo_mod img{
+  width: 20%;
+  margin: auto;
+}
+.datos_mod_selected p{
+  margin: 2% ;
 }
 @keyframes fondo_moc{
   0%{

@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld('api', {
   getMods: () => ipcRenderer.invoke('get-mods'),
   //ejecutar mod
   runMod: (selectedMod) => ipcRenderer.invoke('run-mod', selectedMod),
+  onModExecutionEnded: (callback) => ipcRenderer.on('mod-execution-ended', callback),
   //obtener datos de ejecucion
   getEjecucion: (selectedMod) => ipcRenderer.invoke('get-ejecucion', selectedMod),
   //abrir archivos persistentes
@@ -91,6 +92,11 @@ contextBridge.exposeInMainWorld('api', {
 })
 contextBridge.exposeInMainWorld('electronAPI', {
   runBatFile: (batFilePath) => ipcRenderer.invoke('run-bat-file', batFilePath)
+});
+contextBridge.exposeInMainWorld('electron', {
+  updateDiscordStatus: (details, state, ddlc_icon) => {
+    ipcRenderer.send('update-discord-status', { details, state, ddlc_icon});
+  },
 });
 
 

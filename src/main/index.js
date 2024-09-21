@@ -2,13 +2,53 @@ import { app, shell, BrowserWindow, ipcMain, dialog, Notification,net, nativeIma
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import fsExtra from 'fs-extra'
-import { execFile } from 'child_process'
+import { spawn } from 'child_process'
 import os from 'os'
 import { autoUpdater } from 'electron-updater'
 import unzipper from 'unzipper';
 const { exec } = require('child_process'); // Asegúrate de importar 'exec' aquí
 //obtener la libreria para revisar el espacio en disco
 const checkDiskSpace = require('check-disk-space').default;
+
+
+//integración con discord
+const { Client } = require('discord-rpc');
+
+const clientId = '1287078808893128764';
+
+const rpc = new Client({ transport: 'ipc' });
+
+async function setActivity(details, state, ddlc_icon) {
+  if (!rpc) {
+    return;
+  }
+
+  rpc.setActivity({
+    details: details || '...',
+    state: state || 'Esperando actividad :D',
+    startTimestamp: Date.now(),
+    largeImageKey: 'logo',
+    largeImageText: 'DDSC Launcher',
+    smallImageKey: ddlc_icon || 'logo',
+    smallImageText: details || 'Inicio',
+    instance: false,
+  });
+
+}
+
+rpc.on('ready', () => {
+  console.log('Discord RPC listo.');
+  setActivity();
+
+  // Actualizar cada 15 segundos
+  /*
+  setInterval(() => {
+    setActivity();
+  }, 15 * 1000);
+  */
+});
+
+rpc.login({ clientId }).catch(console.error);
 
 //obtener datos del package.json (version)
 const packageJson = require('./../../package.json');
@@ -170,7 +210,7 @@ function createWindow() {
   });
 
   // Ocultar el menú
-  mainWindow.setMenu(null);
+  // mainWindow.setMenu(null);
 }
 
 app.whenReady().then(() => {
@@ -191,7 +231,10 @@ app.whenReady().then(() => {
   ipcMain.on('close-app', () => {
     app.quit(); // Cierra la aplicación
   });
-
+  // Escuchar mensajes del renderer para actualizar el estado de Discord
+  ipcMain.on('update-discord-status', (event, { details, state , url_details_mod}) => {
+    setActivity(details, state, url_details_mod);
+  });
   // Escucha para verificar el espacio en disco
   ipcMain.handle('check-disk-space', async (event, drivePath) => {
     try {
@@ -459,72 +502,64 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
   });
   
   // Manejador para ejecutar mods
-  ipcMain.handle('run-mod', async (event, selectedMod) => {
-    try {
-      const basePath = await getBasePath();
-      const modPath = join(basePath, 'mods', selectedMod, 'DDLC-1.1.1-pc');
-      const txtFilePath = join(basePath, 'mods', selectedMod, 'datos.txt');
+ipcMain.handle('run-mod', async (event, selectedMod) => {
+  try {
+    const basePath = await getBasePath();
+    const modPath = join(basePath, 'mods', selectedMod, 'DDLC-1.1.1-pc');
+    const txtFilePath = join(basePath, 'mods', selectedMod, 'datos.txt');
 
-  
-      let ejecucionCount = 1;
-      if (fsExtra.existsSync(txtFilePath)) {
-        const data = fsExtra.readFileSync(txtFilePath, 'utf8');
-        const match = data.match(/ejecucion=(\d+),/);
-        if (match) {
-          ejecucionCount = parseInt(match[1], 10) + 1;
-        }
+    let ejecucionCount = 1;
+    if (fsExtra.existsSync(txtFilePath)) {
+      const data = fsExtra.readFileSync(txtFilePath, 'utf8');
+      const match = data.match(/ejecucion=(\d+),/);
+      if (match) {
+        ejecucionCount = parseInt(match[1], 10) + 1;
       }
-      fsExtra.writeFileSync(txtFilePath, `ejecucion=${ejecucionCount},`, 'utf8');
-  
-      const exeFiles = fsExtra.readdirSync(modPath).filter(file => file.endsWith('.exe'));
-      const hasOtherExeFiles = exeFiles.length > 1;
-      const ddlcExePath = join(modPath, 'DDLC.exe');
-  
-      
-  
-      if (!hasOtherExeFiles && fsExtra.existsSync(ddlcExePath)) {
-        
-        await crearBatFile(join(basePath, 'mods', selectedMod),join(basePath, 'mods', selectedMod), "DDLC.exe");
-
-        execFile(ddlcExePath, (error, stdout, stderr) => {
-          if (error) {
-            console.error(`Error al ejecutar el archivo: ${error.message}`);
-            return;
-          }
-          if (stderr) {
-            console.error(`Error en stderr: ${stderr}`);
-            return;
-          }
-          console.log(`Resultado del archivo: ${stdout}`);
-        });
-      } else if (exeFiles.length > 0) {
-        const otherExeFiles = exeFiles.filter(file => file !== 'DDLC.exe');
-        const filteredFiles = otherExeFiles.filter(file => !file.includes('32'));
-        
-        if (filteredFiles.length > 0) {
-          await crearBatFile(join(basePath, 'mods', selectedMod),join(basePath, 'mods', selectedMod), filteredFiles[0]);
-          const selectedExePath = join(modPath, filteredFiles[0]);
-          execFile(selectedExePath, (error, stdout, stderr) => {
-            if (error) {
-              console.error(`Error al ejecutar el archivo alternativo: ${error.message}`);
-              return;
-            }
-            if (stderr) {
-              console.error(`Error en stderr: ${stderr}`);
-              return;
-            }
-            console.log(`Resultado del archivo alternativo: ${stdout}`);
-          });
-        } else {
-          console.error('No se encontraron archivos .exe válidos para ejecutar.');
-        }
-      } else {
-        console.error('No se encontraron archivos .exe en la carpeta.');
-      }
-    } catch (error) {
-      console.error('Error al ejecutar el mod:', error);
     }
-  });
+    fsExtra.writeFileSync(txtFilePath, `ejecucion=${ejecucionCount},`, 'utf8');
+
+    const exeFiles = fsExtra.readdirSync(modPath).filter(file => file.endsWith('.exe'));
+    const hasOtherExeFiles = exeFiles.length > 1;
+    const ddlcExePath = join(modPath, 'DDLC.exe');
+
+    let proceso;
+
+    if (!hasOtherExeFiles && fsExtra.existsSync(ddlcExePath)) {
+      await crearBatFile(join(basePath, 'mods', selectedMod), join(basePath, 'mods', selectedMod), "DDLC.exe");
+
+      // Usar spawn para ejecutar el archivo y escuchar su finalización
+      proceso = spawn(ddlcExePath);
+
+    } else if (exeFiles.length > 0) {
+      const otherExeFiles = exeFiles.filter(file => file !== 'DDLC.exe');
+      const filteredFiles = otherExeFiles.filter(file => !file.includes('32'));
+
+      if (filteredFiles.length > 0) {
+        await crearBatFile(join(basePath, 'mods', selectedMod), join(basePath, 'mods', selectedMod), filteredFiles[0]);
+        const selectedExePath = join(modPath, filteredFiles[0]);
+
+        // Usar spawn para ejecutar el archivo alternativo y escuchar su finalización
+        proceso = spawn(selectedExePath);
+
+      } else {
+        console.error('No se encontraron archivos .exe válidos para ejecutar.');
+      }
+    } else {
+      console.error('No se encontraron archivos .exe en la carpeta.');
+    }
+
+    if (proceso) {
+      // Escuchar cuando el proceso haya terminado
+      proceso.on('close', (code) => {
+        console.log(`Proceso terminado con el código: ${code}`);
+        // Enviar un mensaje al frontend para notificar que el proceso ha finalizado
+        event.sender.send('mod-execution-ended', { code });
+      });
+    }
+  } catch (error) {
+    console.error('Error al ejecutar el mod:', error);
+  }
+});
 
   //Abrir carpeta de persistentes
   ipcMain.handle('open-folder-persistent', async () => {

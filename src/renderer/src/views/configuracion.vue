@@ -16,6 +16,16 @@
             </div>
             <div>
               <h5 style="text-align: center;">Seleccionar fondo de pantalla</h5>
+              <div style="width: 100%;display: grid;grid-template-columns: 9fr 1fr 1fr; gap:2%; margin: 2% 0;">
+                <input type="text" style="width: 100%;opacity: 1;">
+               
+                <button @click="openFolder" class="image_button" style="opacity: 1;">
+                <img src="./../assets/gui/open_folder.png" alt="abrir"  title="Abrir Explorador">
+                </button>
+                <button @click="createFolderAndCopy" title="Guardar" class="image_button"  style="opacity: 1;">
+                  <img src="./../assets/gui/guardar.png" alt="Guardar">
+                </button>
+              </div>
               <hr>
             </div>
             <div class="content_wallpapers">
@@ -83,6 +93,12 @@ const openFileExplorer = async () => {
 
 const openExplorerRaiz = async () => {
   await window.api.openFolderRaiz()
+}
+const openFolder = async () => {
+  const result = await window.api.selectFolder()
+  if (!result.canceled) {
+    modFiles.value = result.filePaths[0]
+  }
 }
 
 const rutaBase = ref('')
