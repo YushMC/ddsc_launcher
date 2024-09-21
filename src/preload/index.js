@@ -49,6 +49,7 @@ contextBridge.exposeInMainWorld('api', {
 
   //Seleccionar archivos o carpeta
   selectFolder: () => ipcRenderer.invoke('select-folder'),
+  selectImg: ()=> ipcRenderer.invoke('select-img'),
   selectZip: () => ipcRenderer.invoke('select-zip-file'),
   // Función para pegar desde el portapapeles
   pasteClipboard: () => clipboard.readText(),

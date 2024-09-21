@@ -160,10 +160,9 @@ function createWindow() {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
       nodeIntegration: true,
       enableRemoteModule: true,
-      valueOfwebSecurity: false 
+      valueOfwebSecurity: false,
     },
     title: `Doki Doki Spanish Club Launcher - v${packageJson.version}`,
   })
@@ -394,6 +393,17 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
     })
     return result
   })
+
+  ipcMain.handle('select-img', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'], // Cambiado de 'openDirectory' a 'openFile'
+      filters: [
+        { name: 'Archivos de imagen', extensions: ['png', 'jpg', 'jpeg', 'gif'] } // Asegúrate de incluir las extensiones correctas
+      ]
+    });
+  
+    return result;
+  });
 
   // Manejador para seleccionar un archivo .zip
   ipcMain.handle('select-zip-file', async () => {

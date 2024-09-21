@@ -6,29 +6,21 @@
       </div>
         <div class="container_inicio">
           <div class="content_card">
-            <div style="display: grid;grid-template-columns: repeat(3,1fr);width: 80%; gap: 2%;">
-              <router-link to="/change_rute" id="changeRuta"><i class="fa-solid fa-rotate-right"></i> Cambiar ubicación<br>Ruta actual: 
-                {{ rutaBase }}
-              </router-link>
-              <button @click="openFileExplorer"><i class="fa-solid fa-file-shield"></i> Abrir carpeta de archivos persistentes</button>
-            
-              <button @click="openExplorerRaiz"><i class="fa-regular fa-folder-open"></i> Abrir carpeta raiz</button>
-            </div>
             <div>
               <h5 style="text-align: center;">Seleccionar fondo de pantalla</h5>
-              <div style="width: 100%;display: grid;grid-template-columns: 9fr 1fr 1fr; gap:2%; margin: 2% 0;">
-                <input type="text" style="width: 100%;opacity: 1;">
-               
-                <button @click="openFolder" class="image_button" style="opacity: 1;">
-                <img src="./../assets/gui/open_folder.png" alt="abrir"  title="Abrir Explorador">
-                </button>
-                <button @click="createFolderAndCopy" title="Guardar" class="image_button"  style="opacity: 1;">
-                  <img src="./../assets/gui/guardar.png" alt="Guardar">
-                </button>
-              </div>
+              
               <hr>
             </div>
             <div class="content_wallpapers">
+              <img v-for="imageAPi in imagesApi"
+                :src="imageAPi.src" 
+                :key="imageAPi.id" 
+                :title="imageAPi.title"
+                @click="setAsBackground(imageAPi.src)"  
+                :class="{
+                   wallpaper: true, 
+                   wallpaper_selected: imagen_seleccion_mostrar === imageAPi.src
+                }"/>
               <img v-for="image in images"
                :src="image" 
                :key="image" 
@@ -46,17 +38,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import Swal from 'sweetalert2'
+const fondoFIle = ref('')
 const imagen_seleccion_mostrar = ref('');
+
+const imagesApi = ref([]);
 // Lista de imágenes disponibles
 const images = ref([
   //imagenes de mods
-  'https://www.dokidokispanish.club/assets/capturas/Celestial_Restraint/sayo1.png',
-  'https://www.dokidokispanish.club/assets/capturas/meni_cuquis/cap_1.png',
-  'https://www.dokidokispanish.club/assets/capturas/esquizofrenia/banner.jpg',
-  'https://www.dokidokispanish.club/assets/capturas/mexican_club/ddmc.gif',
-  'https://www.dokidokispanish.club/assets/capturas/mexican_club/cap_1.png',
-  'https://www.dokidokispanish.club/assets/capturas/christmas_time/cap_1.png',
-  'https://www.dokidokispanish.club/assets/capturas/Doki_Doki_Recovery_Project/140%20sin%20t%C3%ADtulo_20240826160042.png',
   //imagenes o edits de escenas del ddlc
   'https://www.dokidokispanish.club/assets/ddlc/cgs/1.png',
   'https://www.dokidokispanish.club/assets/ddlc/cgs/2.png',
@@ -94,10 +82,11 @@ const openFileExplorer = async () => {
 const openExplorerRaiz = async () => {
   await window.api.openFolderRaiz()
 }
-const openFolder = async () => {
-  const result = await window.api.selectFolder()
+const openFolderImg = async () => {
+  const result = await window.api.selectImg()
   if (!result.canceled) {
-    modFiles.value = result.filePaths[0]
+    fondoFIle.value = result.filePaths[0];
+    console.log(fondoFIle.value);
   }
 }
 
@@ -112,12 +101,20 @@ const fetchBasePath = async () => {
   }
 }
 
-onMounted(() => {
-  fetchBasePath()
+onMounted(async () => {
+  fetchBasePath();
   const savedImage3 = localStorage.getItem('backgroundImage');
   if (savedImage3) {
     imagen_seleccion_mostrar.value = savedImage3;
     console.log('Imagen guardada:', imagen_seleccion_mostrar.value);
+  }
+  // Cargar imágenes de la API al montar el componente
+  try {
+    const response = await fetch('https://www.dokidokispanish.club/api_ddsc/wallpapers'); // Reemplaza con tu URL de API
+    const data = await response.json();
+    imagesApi.value = data.results; // Asumiendo que la respuesta tiene un campo `images` que es un array
+  } catch (error) {
+    console.error('Error al cargar las imágenes:', error);
   }
 })
 </script>
