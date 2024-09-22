@@ -160,7 +160,7 @@ function createWindow() {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      nodeIntegration: true,
+      nodeIntegration: false,
       enableRemoteModule: true,
       valueOfwebSecurity: false,
     },
@@ -170,6 +170,11 @@ function createWindow() {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
+
+  // Maximizar la ventana después de cargarla
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.maximize();
+  });
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -210,6 +215,10 @@ function createWindow() {
 
   // Ocultar el menú
   // mainWindow.setMenu(null);
+  // Responde con la versión de la aplicación cuando se solicita
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion();
+  });
 }
 
 app.whenReady().then(() => {
@@ -234,7 +243,9 @@ app.whenReady().then(() => {
   ipcMain.on('update-discord-status', (event, { details, state , url_details_mod}) => {
     setActivity(details, state, url_details_mod);
   });
-  // Escucha para verificar el espacio en disco
+
+  
+    // Escucha para verificar el espacio en disco
   ipcMain.handle('check-disk-space', async (event, drivePath) => {
     try {
       const diskSpace = await checkDiskSpace(drivePath); // Por ejemplo, 'C:/'

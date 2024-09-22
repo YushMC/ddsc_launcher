@@ -18,7 +18,7 @@
               <div>
                 <h3>Desarrollado por:</h3>
                 <div class="content_buttons_credits">
-                  <a>Team DDSC Web</a>
+                  <a href="https://www.youtube.com/@ELYushMC" target="_blank">YushMC (Team DDSC Web)</a>
                 </div>
               </div>
               <div>

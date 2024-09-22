@@ -1,5 +1,4 @@
 import { contextBridge, ipcRenderer, clipboard  } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
 // Añadir eventos de progreso
 ipcRenderer.on('copy-progress', (event, message) => {
   // Emitir el evento al frontend
@@ -91,28 +90,18 @@ contextBridge.exposeInMainWorld('api', {
   crearBatFile: (folderPath, exeFileName) => ipcRenderer.invoke('crear-bat-file', folderPath, exeFileName),
   //ejcutar el .bat
 })
-contextBridge.exposeInMainWorld('electronAPI', {
-  runBatFile: (batFilePath) => ipcRenderer.invoke('run-bat-file', batFilePath)
-});
+
 contextBridge.exposeInMainWorld('electron', {
+  runBatFile: (batFilePath) => ipcRenderer.invoke('run-bat-file', batFilePath),
   updateDiscordStatus: (details, state, ddlc_icon) => {
     ipcRenderer.send('update-discord-status', { details, state, ddlc_icon});
   },
+  getAppVersion: () => ipcRenderer.invoke('get-app-version')
 });
 
 
 // Custom APIs for renderer
 const api = {}
 
-// Exponer APIs personalizadas de Electron solo si el contexto está aislado
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-  } catch (error) {
-    console.error('Error al exponer electronAPI:', error)
-  }
-} else {
-  // Exponer electronAPI al contexto global si el contexto no está aislado
-  window.electron = electronAPI
-}
+
 

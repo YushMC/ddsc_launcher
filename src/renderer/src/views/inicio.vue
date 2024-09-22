@@ -124,7 +124,7 @@ const runModBat = async () => {
           });
 
           try {
-            const result = await window.electronAPI.runBatFile(batFilePath);
+            const result = await window.electron.runBatFile(batFilePath);
             if (!result.success) {
               console.error('Error al ejecutar el archivo .bat:', result.error);
             } else {
@@ -191,7 +191,7 @@ const deleteFolderOrFile =  async () => {
                         'Tu archivo ha sido eliminado.',
                         'success'
                     ).then(() => {
-                      window.location.reload(); // Recargar la página
+                      router.push('/inicio');// Recargar la página
                     });
                 } else {
                     Swal.fire({
@@ -268,7 +268,7 @@ const runMod = async () => {
     ejecucion.value = await window.api.getEjecucion(selectedMod.value)
     Swal.close();
     // Cambia estos valores según sea necesario
-    let detalles = 'Mod: ' + selectedMod.value;
+    let detalles = 'Jugando: ' + selectedMod.value;
     let estado = 'Partidas: '+ ejecucion.value;
     let url_details_mod = modInfo.url_sitio;
     // Llama a la función expuesta por el preload
@@ -279,7 +279,7 @@ const runMod = async () => {
         title: "Ejecutando: " + selectedMod.value,
         html: 'Mod ejecutado en otra ventana!'
     }).then(() => {
-      window.location.reload(); // Recargar la página
+      router.push('/inicio'); // Recargar la página
     });
   }
 }

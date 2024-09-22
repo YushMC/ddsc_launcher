@@ -6,12 +6,29 @@
       </div>
         <div class="container_inicio">
           <div class="content_card">
-            <div>
-              <h5 style="text-align: center;">Seleccionar fondo de pantalla</h5>
-              
-              <hr>
+            <div style="margin: 2% 0;display: grid;grid-template-columns: 3fr 1fr 1fr; width:100%;gap:2%;">
+              <router-link to="/change_rute" style="background: red;color: white;padding: 2%;border-radius: 5px;text-decoration: none">
+                <h5>Cambia ubicación </h5>
+                <h6>Ruta actual: {{ rutaBase }}</h6>
+              </router-link>
+              <button  @click.prevent="openFileExplorer">
+                <h5>Abrir carpeta de persistentes</h5>
+              </button>
+              <button @click.prevent="openExplorerRaiz"> 
+                <h5>Abrir carpeta raíz DDLC Launcher</h5>
+              </button>
             </div>
-            <div class="content_wallpapers">
+            <div>
+              <h5 style="text-align: center;
+              position: relative;
+              z-index: 80;
+              background: rgba(255, 255, 255, 1);
+              box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.1);
+              padding: 2% 0;
+              border-radius: 5px;
+              ">Seleccionar fondo de pantalla</h5>
+            </div>
+            <div class="content_wallpapers" style="margin-top: -2%;">
               <img v-for="imageAPi in imagesApi"
                 :src="imageAPi.src" 
                 :key="imageAPi.id" 
@@ -38,7 +55,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import Swal from 'sweetalert2'
-const fondoFIle = ref('')
 const imagen_seleccion_mostrar = ref('');
 
 const imagesApi = ref([]);
@@ -70,6 +86,12 @@ const setAsBackground = (image) => {
   localStorage.setItem('backgroundImage', image); // Guardar en localStorage
   document.body.style.backgroundImage = `url(${image})`; // Cambiar el fondo
   console.log('Imagen seleccionada:', imagen_seleccion_mostrar.value);
+  Swal.fire({
+        position: 'center',
+        icon: "success",
+        title: "Fondo seleccionado correctamente!" 
+  });
+
 };
 
 
@@ -81,13 +103,6 @@ const openFileExplorer = async () => {
 
 const openExplorerRaiz = async () => {
   await window.api.openFolderRaiz()
-}
-const openFolderImg = async () => {
-  const result = await window.api.selectImg()
-  if (!result.canceled) {
-    fondoFIle.value = result.filePaths[0];
-    console.log(fondoFIle.value);
-  }
 }
 
 const rutaBase = ref('')

@@ -295,7 +295,7 @@ async function startCopy(src_ruta, dest_ruta) {
   });
   deleteFolderOrFile();
   if (success) {
-    Swal.fire('Mod descargado!', 'Todos los archivos del mod fueron descargados y copiados correctamente.\nEl mod aparacerá en la página de inicio', 'success').then(() => {window.location.reload(); // Recargar la página   // Recargar la ruta actual sin recargar toda la página
+    Swal.fire('Mod descargado!', 'Todos los archivos del mod fueron descargados y copiados correctamente.\nEl mod aparacerá en la página de inicio', 'success').then(() => {router.push('/download'); // Recargar la página   // Recargar la ruta actual sin recargar toda la página
     });
     resetCursor();
   } else {

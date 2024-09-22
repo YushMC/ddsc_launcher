@@ -32,8 +32,8 @@
         </div>
         <div class="mods_iconos" v-if="isOnline">
             <div class="mod_icono" v-for="mod in modsListInstalled" :key="mod.id" :value="mod" >
-                <img :src="mod.url_logo" alt="{{mod.nombre}}" @click="runModInstalled(mod.nombre)" :title=" mod.nombre" style="cursor: pointer;">
-                <h5 @click="runModInstalled(mod.nombre)" :title=" mod.nombre" style="cursor: pointer;">{{ mod.nombre }}</h5>
+                <img v-if="!isLoading" :src="mod.url_logo" alt="{{mod.nombre}}" @click="runModInstalled(mod.nombre)" :title=" mod.nombre" style="cursor: pointer;">
+                <h5 @click="runModInstalled(mod.nombre)" :title=" mod.nombre" style="cursor: pointer;" v-if="!isLoading">{{ mod.nombre }}</h5>
             </div>
         </div>
     </div>
@@ -48,7 +48,7 @@ const { toggleMusicPlayer } = useMusicPlayer();
 const isOnline = ref(navigator.onLine);
 const ejecucionInstalled = ref(null)
 const modsListInstalled = ref([]);
-
+const isLoading = ref(true)
 const openExplorerRaiz = async () => {
   await window.api.openFolderRaiz()
 }
@@ -81,7 +81,7 @@ const fetchModInfoIcono = async () => {
       // Verifica que data.results exista y sea un array con al menos un elemento
       if (data.results && Array.isArray(data.results) && data.results.length > 0) {
         const modInfo = data.results[0];  // Obtén la primera entrada de resultados
-        
+        isLoading.value = false;
         // Solo asigna si url_logo está presente en el objeto devuelto
         if (modInfo.url_logo) {
           mod.url_logo = modInfo.url_logo;
@@ -118,7 +118,7 @@ const runModInstalled = async (selectedMod) => {
     await window.api.runMod(selectedMod);
     ejecucionInstalled.value = await window.api.getEjecucion(selectedMod);
     // Cambia estos valores según sea necesario
-    let detallesEscritorio = 'Mod: ' + selectedMod;
+    let detallesEscritorio = 'Jugando: ' + selectedMod;
     let estadoEscritorio = 'Partidas: '+ ejecucionInstalled.value;
     // Llama a la función expuesta por el preload
     window.electron.updateDiscordStatus(detallesEscritorio, estadoEscritorio, 'ddlc_icon');
