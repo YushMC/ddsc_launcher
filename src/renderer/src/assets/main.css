@@ -18,3 +18,43 @@ body{
     background-attachment: fixed;
     background-size: cover;
 }
+
+
+#about{
+    padding: 2%;
+    border-radius: 10px;
+    background: #e016d1;
+    color: white;
+    border: none;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .ventana {
+    position: absolute;
+    width: 80%;
+    height: 90%;
+    border: solid 3px #e016d1;
+    background: #e016d1;
+    border-radius: 5px;
+    filter: drop-shadow(5px 5px 10px black);
+    overflow: hidden;
+  }
+  
+  .ventana h3 {
+    margin-left: 1%;
+    color: white;
+  }
+  .name_ventana{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .name_ventana > a{
+    text-decoration: none;
+    margin-right: 2%;
+  }
+  .name_ventana > a > h3:last-child{
+    font-size: 2em;
+    padding: 0 1%;
+  }

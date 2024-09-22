@@ -1,6 +1,6 @@
 <template>
-  <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
-    <div class="name_ventana">
+  <div class="ventana" data-aos="fade-down" data-aos-duration="1000" :style="{ left: position.x + 'px', top: position.y + 'px' }" @mousedown="startDragging">
+    <div class="name_ventana"  @mousedown.stop="startDragging">
         <h3>Descargar</h3>
         <router-link 
         :to="{ name: 'Navegador', query: { url: 'https://launcher.dokidokispanish.club/docs#modo_automatico' } }" 
@@ -51,7 +51,7 @@
 </template>
   
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
 import Swal from 'sweetalert2';
 
 import { useRouter } from 'vue-router';
@@ -74,10 +74,6 @@ const resetCursor = () => {
 
 const descargar = async () => {
   try {
-    const folderExists3 = await window.api.checkFolderExists();
-    if (!folderExists3) {
-      router.push({ name: 'DDLC' }); // Redirigir a otra vista si la carpeta no existe
-    }
     // Verificar espacio en disco antes de iniciar la descarga
     const basePath = await window.api.getBasePath();
     Swal.fire({
@@ -147,6 +143,10 @@ const descargar = async () => {
 };
 
 function downloadFile(nombre, enlace, exeDDLC1) {
+  let detalles = 'Descargando un nuevo mod!';
+  let estado = 'Mod: '+ nombre;
+    // Llama a la función expuesta por el preload
+  window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
   Swal.close();
   const swalInstance = Swal.fire({
     title: `Descargando \n${nombre}`,
@@ -193,6 +193,11 @@ function downloadFile(nombre, enlace, exeDDLC1) {
   });
 
   window.api.onDownloadCancelled(() => {
+    let detalles = 'Descarga Cancelada :c';
+    let estado = 'Mod: '+ nombre;
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
+  Swal.close();
     Swal.fire({
       icon: 'info',
       title: 'Descarga cancelada',
@@ -295,6 +300,11 @@ async function startCopy(src_ruta, dest_ruta) {
   });
   deleteFolderOrFile();
   if (success) {
+    let detalles = 'Descargando un nuevo mod!';
+    let estado = 'Descarga completa del mod: ';
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
+  Swal.close();
     Swal.fire('Mod descargado!', 'Todos los archivos del mod fueron descargados y copiados correctamente.\nEl mod aparacerá en la página de inicio', 'success').then(() => {router.push('/download'); // Recargar la página   // Recargar la ruta actual sin recargar toda la página
     });
     resetCursor();
@@ -342,37 +352,62 @@ const fetchModInfoSelected = async () => {
     modInfoForInstall.value = null
   }
 }
+
+
+const props = defineProps({
+  title: String,
+  initialPosition: {
+    type: Object,
+    default: () => ({ x: 150, y: 20 })
+  }
+});
+
+const position = ref({ ...props.initialPosition });
+const isDragging = ref(false);
+const offset = ref({ x: 0, y: 0 });
+
+function startDragging(event) {
+  isDragging.value = true;
+  offset.value.x = event.clientX - position.value.x;
+  offset.value.y = event.clientY - position.value.y;
+
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('mouseup', stopDragging);
+}
+
+function onDrag(event) {
+  if (isDragging.value) {
+    position.value.x = event.clientX - offset.value.x;
+    position.value.y = event.clientY - offset.value.y;
+  }
+}
+
+function stopDragging() {
+  isDragging.value = false;
+  window.removeEventListener('mousemove', onDrag);
+  window.removeEventListener('mouseup', stopDragging);
+}
+
+onMounted(async () => {
+ try{
+  const folderExists = await window.api.checkFolderExists();
+    if (!folderExists) {
+      router.push({ name: 'DDLC' }); // Redirigir a otra vista si la carpeta no existe
+    }
+ }catch(err){
+
+ }
+});
 </script>
 
 <style scoped>
 
-.ventana{
-    border: solid 3px #e016d1;
-    width: 100%;
-    height: 99% !important;
-    background: #e016d1;
-    border-radius: 5px;
-    filter: drop-shadow(5px 5px 10px black);
-}
-.name_ventana{
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.name_ventana > a{
-  text-decoration: none;
-  margin-right: 2%;
-}
+
 #ayuda_directa{
   color: #fff;
   padding:0.5% 2%;
   border-radius: 5px;
   border: 2px solid #fff;
-}
-.name_ventana > a > h3:last-child{
-  font-size: 2em;
-  padding: 0 1%;
 }
 select{
   width: 100%;
@@ -383,10 +418,6 @@ select{
   cursor: pointer;
   font-size: 1.1em;
   background: none;
-}
-.ventana h3{
-    margin-left: 1%;
-    color: white;
 }
 .container_inicio{
     width: 100%;

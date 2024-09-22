@@ -1,6 +1,6 @@
 <template>
-    <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
-      <div class="name_ventana">
+    <div class="ventana" data-aos="fade-down" data-aos-duration="1000" :style="{ left: position.x + 'px', top: position.y + 'px' }" @mousedown="startDragging">
+      <div class="name_ventana"  @mousedown.stop="startDragging">
         <h3>Configuración</h3>
         <router-link to="/"><h3>x</h3></router-link>
       </div>
@@ -56,6 +56,40 @@
 import { ref, onMounted } from 'vue'
 import Swal from 'sweetalert2'
 const imagen_seleccion_mostrar = ref('');
+
+const props = defineProps({
+  title: String,
+  initialPosition: {
+    type: Object,
+    default: () => ({ x: 150, y: 20 })
+  }
+});
+
+const position = ref({ ...props.initialPosition });
+const isDragging = ref(false);
+const offset = ref({ x: 0, y: 0 });
+
+function startDragging(event) {
+  isDragging.value = true;
+  offset.value.x = event.clientX - position.value.x;
+  offset.value.y = event.clientY - position.value.y;
+
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('mouseup', stopDragging);
+}
+
+function onDrag(event) {
+  if (isDragging.value) {
+    position.value.x = event.clientX - offset.value.x;
+    position.value.y = event.clientY - offset.value.y;
+  }
+}
+
+function stopDragging() {
+  isDragging.value = false;
+  window.removeEventListener('mousemove', onDrag);
+  window.removeEventListener('mouseup', stopDragging);
+}
 
 const imagesApi = ref([]);
 // Lista de imágenes disponibles
@@ -144,34 +178,6 @@ onMounted(async () => {
   border-radius: 5px;
   text-decoration: none;
 }
-.ventana{
-  width: 100%;
-  height: 99% !important;
-    border: solid 3px #e016d1;
-    background: #e016d1;
-    border-radius: 5px;
-    filter: drop-shadow(5px 5px 10px black);
-    height: 100%;
-    overflow: hidden;
-}
-.ventana h3{
-    margin-left: 1%;
-    color: white;
-}
-.name_ventana{
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.name_ventana > a{
-  text-decoration: none;
-  margin-right: 2%;
-}
-.name_ventana > a > h3:last-child{
-  font-size: 2em;
-  padding: 0 1%;
-}
 .container_inicio{
     width: 100%;
     height: 100%;
@@ -184,7 +190,6 @@ onMounted(async () => {
     background-repeat: repeat;
     background-size: inherit;
     animation: fondo_moc linear infinite 60s;
-    
 }
 .content_card{
   width: 100%;

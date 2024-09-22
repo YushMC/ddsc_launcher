@@ -29,7 +29,7 @@ async function setActivity(details, state, ddlc_icon) {
     startTimestamp: Date.now(),
     largeImageKey: 'logo',
     largeImageText: 'DDSC Launcher',
-    smallImageKey: ddlc_icon || 'logo',
+    smallImageKey: ddlc_icon || 'ddlc_icon',
     smallImageText: details || 'Inicio',
     instance: false,
   });

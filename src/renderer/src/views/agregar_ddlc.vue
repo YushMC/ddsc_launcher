@@ -1,7 +1,7 @@
 <template>
-    <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
+    <div class="ventana" data-aos="fade-down" data-aos-duration="1000" :style="{ left: position.x + 'px', top: position.y + 'px' }" @mousedown="startDragging">
       <h2 style="color: white;">Agregar archivos de DDLC</h2>
-      <div class="container_inicio">
+      <div class="container_inicio"  @mousedown.stop="startDragging">
         <h2>Colocar ruta del archivo DDLC (ddlc-win.zip)</h2>
         <h3 style="color: black;">El archivo lo puedes descargar de https://ddlc.moe/</h3>
         <a target="_blank" href="https://ddlc.moe/" id="ddlc_zip">Descargar archivo</a>
@@ -79,6 +79,41 @@ const selectAndExtractZip = async () => {
     Swal.fire('Advertencia', 'No se seleccionó ningún archivo', 'warning');
   }
 }
+
+const props = defineProps({
+  title: String,
+  initialPosition: {
+    type: Object,
+    default: () => ({ x: 150, y: 20 })
+  }
+});
+
+const position = ref({ ...props.initialPosition });
+const isDragging = ref(false);
+const offset = ref({ x: 0, y: 0 });
+
+function startDragging(event) {
+  isDragging.value = true;
+  offset.value.x = event.clientX - position.value.x;
+  offset.value.y = event.clientY - position.value.y;
+
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('mouseup', stopDragging);
+}
+
+function onDrag(event) {
+  if (isDragging.value) {
+    position.value.x = event.clientX - offset.value.x;
+    position.value.y = event.clientY - offset.value.y;
+  }
+}
+
+function stopDragging() {
+  isDragging.value = false;
+  window.removeEventListener('mousemove', onDrag);
+  window.removeEventListener('mouseup', stopDragging);
+}
+
   </script>
     
   
@@ -93,18 +128,6 @@ const selectAndExtractZip = async () => {
   .readonly-input {
     opacity: 0.5;
     display: none;
-  }
-  .ventana{
-      border: solid 3px #e016d1;
-      width: 100%;
-      height: 99% !important;
-      background: #e016d1;
-      border-radius: 5px;
-      filter: drop-shadow(5px 5px 10px black);
-  }
-  .ventana h3{
-      margin-left: 1%;
-      color: white;
   }
   .container_inicio{
       width: 100%;

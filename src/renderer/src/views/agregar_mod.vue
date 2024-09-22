@@ -1,6 +1,8 @@
 <template>
-  <div class="ventana" data-aos="fade-down" data-aos-duration="1000">
-    <div class="name_ventana">
+  <div class="ventana" data-aos="fade-down" data-aos-duration="1000"
+  :style="{ left: position.x + 'px', top: position.y + 'px' }" @mousedown="startDragging"
+  >
+    <div class="name_ventana" @mousedown.stop="startDragging">
         <h3>Agregar Mod</h3>
         <router-link 
         :to="{ name: 'Navegador', query: { url: 'https://launcher.dokidokispanish.club/docs#modo_manual' } }" 
@@ -64,6 +66,7 @@
           </div>
         </button>
       </div>
+      <button v-if=" isReadonly" @click="cancelar_mod" style="background: red;position: absolute;bottom: 1%; right: 1%;width: 20%;">Cancelar</button>
     </div>
   </div>
 </template>
@@ -83,6 +86,111 @@ const isLoading = ref(false); // Estado para controlar el cursor
 const isDataLoaded = ref(false);
 const isReadonly2 = ref(true);
 
+const cancelar_mod = async ()=>{
+  try{
+        const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡No podrás deshacer esta acción!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminarlo',
+        cancelButtonText: 'Cancelar',
+      })
+
+        if (result.isConfirmed) {
+          // Aquí pones la acción a ejecutar si el usuario confirma
+          Swal.close(); 
+          Swal.fire({
+            title: `Eliminando carpeta del mod \n${modName.value}...`,
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+              Swal.showLoading();
+            }
+          });
+            try{
+                const basePath = await window.api.getBasePath();
+
+                const filePath = `${basePath}\\mods\\${modName.value}`;  // Cambia esta ruta por la que necesites eliminar
+                const { success, message } = await window.api.deleteFolderOrFile(filePath);
+
+                Swal.close(); // Cierra el swal de carga si el proceso terminó
+                if (success) {
+                    console.log('Eliminación exitosa:', message);
+                    // Aquí puedes mostrar una alerta o notificación de éxito
+                    Swal.fire(
+                        'Eliminado!',
+                        'Tu archivo ha sido eliminado.',
+                        'success'
+                    ).then(() => {
+                      router.push('/agregar');// Recargar la página
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: `Error al eliminar carpeta del mod \n${modName.value}`,
+                        html: `Error: ${message}`
+                      });
+                    console.error('Error al eliminar:', message);
+                    // Aquí puedes mostrar una alerta o notificación de error
+                }
+            }catch(err){
+                Swal.close();
+                Swal.fire({
+                    icon: "error",
+                    title: `Ocurrio un problema!`,
+                    html: `Error: ${err}`
+                });
+            }
+        }
+
+    }catch(err){
+        Swal.close();
+        Swal.fire({
+            icon: "error",
+            title: `Ocurrio un problema!`,
+            html: `Error: ${err}`
+        });
+    }
+  modName.value= ''
+  isReadonly.value = false;
+}
+
+const props = defineProps({
+  title: String,
+  initialPosition: {
+    type: Object,
+    default: () => ({ x: 150, y: 20 })
+  }
+});
+
+const position = ref({ ...props.initialPosition });
+const isDragging = ref(false);
+const offset = ref({ x: 0, y: 0 });
+
+function startDragging(event) {
+  isDragging.value = true;
+  offset.value.x = event.clientX - position.value.x;
+  offset.value.y = event.clientY - position.value.y;
+
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('mouseup', stopDragging);
+}
+
+function onDrag(event) {
+  if (isDragging.value) {
+    position.value.x = event.clientX - offset.value.x;
+    position.value.y = event.clientY - offset.value.y;
+  }
+}
+
+function stopDragging() {
+  isDragging.value = false;
+  window.removeEventListener('mousemove', onDrag);
+  window.removeEventListener('mouseup', stopDragging);
+}
 
 // Crear una referencia para almacenar los mods
 const mods = ref([]);
@@ -158,10 +266,6 @@ const createFolderAndCopy = async () => {
   }
 
   try {
-    const folderExists2 = await window.api.checkFolderExists();
-    if (!folderExists2) {
-      router.push({ name: 'DDLC' }); // Redirigir a otra vista si la carpeta no existe
-    }
     setLoadingCursor(); // Cambiar cursor a "cargando"
     const basePath = await getBasePath(); // Obtener la ruta base desde el archivo de configuración
     const modFolder = modName.value.trim();
@@ -291,8 +395,16 @@ async function startCopy(src_ruta,dest_ruta) {
     Swal.fire('Error', `Error al copiar archivos: ${error}`, 'error');
   }
 }
-onMounted(() => {
+onMounted(async () => {
   fetchMods();
+ try{
+  const folderExists = await window.api.checkFolderExists();
+    if (!folderExists) {
+      router.push({ name: 'DDLC' }); // Redirigir a otra vista si la carpeta no existe
+    }
+ }catch(err){
+
+ }
 });
 </script>
   
@@ -305,37 +417,11 @@ onMounted(() => {
 .readonly-input-2 {
   opacity: 0.5;
 }
-.ventana{
-    border: solid 3px #e016d1;
-    width: 100%;
-    height: 99% !important;
-    background: #e016d1;
-    border-radius: 5px;
-    filter: drop-shadow(5px 5px 10px black);
-}
-.ventana h3{
-    margin-left: 1%;
-    color: white;
-}
-.name_ventana{
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 #ayuda{
   color: #fff;
   padding:0.5% 2%;
   border-radius: 5px;
   border: 2px solid #fff;
-}
-.name_ventana > a{
-  text-decoration: none;
-  margin-right: 2%;
-}
-.name_ventana > a > h3:last-child{
-  font-size: 2em;
-  padding: 0 1%;
 }
 hr{
   width: 90%;

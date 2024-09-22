@@ -91,6 +91,11 @@ const playSongFromList = (index) => {
   currentSongIndex.value = index;
   currentSong.value = songs.value[currentSongIndex.value];
   pausa_play.value = true
+  let detalles = 'Reproductor de música';
+  console.log("reproduciendo: "+ currentSong.value.title);
+  let estado = 'Reproduciendo canción: '+ currentSong.value.title;
+  // Llama a la función expuesta por el preload
+  window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
   if(MusicPlayerRunnning_local.value==false){
       toggleMusicPlayerRunning();
       MusicPlayerRunnning_local.value = !MusicPlayerRunnning_local.value;
@@ -102,6 +107,10 @@ const play_pause = () => {
   if (pausa_play.value) {
     audio.value.pause();
     pausa_play.value = false;
+    let detalles = 'Reproductor de música';
+    let estado = 'Canción en pausa: '+ currentSong.value.title;
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
   } else {
     if(MusicPlayerRunnning_local.value==false){
       toggleMusicPlayerRunning();
@@ -113,6 +122,11 @@ const play_pause = () => {
     audio.value.play().catch((error) => {
       console.error('Error al reproducir la canción:', error);
     });
+    let detalles = 'Reproductor de música';
+    console.log("reproduciendo: "+ currentSong.value.title);
+    let estado = 'Reproduciendo canción: '+ currentSong.value.title;
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
     pausa_play.value = true;
   }
 };
@@ -125,6 +139,8 @@ const stop = () => {
     toggleMusicPlayerRunning();
     MusicPlayerRunnning_local.value = !MusicPlayerRunnning_local.value
   }
+  // Llama a la función expuesta por el preload
+  window.electron.updateDiscordStatus();
 };
 //cancion anterior
 const prevSong = () => {
@@ -132,6 +148,11 @@ const prevSong = () => {
     currentSongIndex.value--;
     currentSong.value = songs.value[currentSongIndex.value];
     pausa_play.value = true
+    let detalles = 'Reproductor de música';
+    console.log("reproduciendo: "+ currentSong.value.title);
+    let estado = 'Reproduciendo canción: '+ currentSong.value.title;
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
     loadAndPlaySong(true); // Reiniciar currentTime al cambiar de canción
   }
 };
@@ -141,6 +162,11 @@ const nextSong = () => {
     currentSongIndex.value++;
     currentSong.value = songs.value[currentSongIndex.value];
     pausa_play.value = true
+    let detalles = 'Reproductor de música';
+    console.log("reproduciendo: "+ currentSong.value.title);
+    let estado = 'Reproduciendo canción: '+ currentSong.value.title;
+    // Llama a la función expuesta por el preload
+    window.electron.updateDiscordStatus(detalles, estado, 'ddlc_icon');
     loadAndPlaySong(true); // Reiniciar currentTime al cambiar de canción
   }
 };
