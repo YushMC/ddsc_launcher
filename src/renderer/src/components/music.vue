@@ -52,7 +52,7 @@
           <h3 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].title }}</h3>
           <h5 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].details }}</h5>
         </div>
-        <a v-if="songs[currentSongIndex].enlace != null " :href="songs[currentSongIndex].enlace" id="about">Visitar</a>
+        <a v-if="songs[currentSongIndex].enlace != null " :href="songs[currentSongIndex].enlace" id="about" target="_blank">Visitar</a>
       </div>
       <!-- Barra de progreso con slider-->
       <div class="progress_music_and_controls">
