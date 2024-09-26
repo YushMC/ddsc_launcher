@@ -6,7 +6,7 @@
       </div>
         <div class="container_inicio">
           <div class="content_card">
-            <div style="margin: 2% 0;display: grid;grid-template-columns: 3fr 1fr 1fr; width:100%;gap:2%;">
+            <div style="margin: 1% 0;display: grid;grid-template-columns: 3fr 1fr 1fr; width:100%;gap:2%;">
               <router-link to="/change_rute" style="background: red;color: white;padding: 2%;border-radius: 5px;text-decoration: none">
                 <h5>Cambia ubicación </h5>
                 <h6>Ruta actual: {{ rutaBase }}</h6>
@@ -17,6 +17,15 @@
               <button @click.prevent="openExplorerRaiz"> 
                 <h5>Abrir carpeta raíz DDLC Launcher</h5>
               </button>
+            </div>
+            <div style="width: 90%;display: flex;flex-direction: column;">
+              <label for="">Ingresa tu nombre de jugador (Solo en mods compatibles)</label>
+              <div style="width: 100%;display: grid;grid-template-columns: 7fr 1fr">
+                <input v-model="userMods" type="text" style="opacity: 1;"/>
+                <button @click="setAsPayer(userMods)" style="width: 100%;opacity: 1;" class="image_button">
+                  <img src="./../assets/gui/guardar.png" alt="Guardar" style="width: 20%;" title="Copiar archivos">
+                </button>
+              </div>
             </div>
             <div>
               <h5 style="text-align: center;
@@ -127,6 +136,28 @@ const setAsBackground = (image) => {
   });
 
 };
+const userMods = ref('')
+const setAsPayer = async (name) => {
+  if(name==''){
+    return
+  }
+  // Usar la API expuesta por el preload script
+  
+  localStorage.setItem('playerName', name); // Guardar en localStorage
+  try{
+    Swal.fire({
+        position: 'center',
+        icon: "success",
+        title: "Nombre guardado correctamente!",
+        html: 'Esto afectará a los nuevos mods que sean instalados ó al eliminar los archivos persistentes del mod!'
+    });
+    await window.electron.createFilesName(name);
+  }catch(error){
+
+  }
+  
+
+};
 
 
 
@@ -151,6 +182,7 @@ const fetchBasePath = async () => {
 }
 
 onMounted(async () => {
+  userMods.value = localStorage.getItem('playerName');
   fetchBasePath();
   const savedImage3 = localStorage.getItem('backgroundImage');
   if (savedImage3) {

@@ -160,7 +160,7 @@ function createWindow() {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      nodeIntegration: false,
+      nodeIntegration: true,
       enableRemoteModule: true,
       valueOfwebSecurity: false,
     },
@@ -259,6 +259,33 @@ app.whenReady().then(() => {
     }
   });
 
+  ipcMain.handle('create-files-name', async (event, savedPlayerName) => {
+    try{
+    // Función que busca carpetas y genera el archivo
+    const basePath = await getBasePath(); // Define tu base path según tu configuración
+    console.log(basePath)
+    fsExtra.readdir(join(basePath,'mods'), (err, folders) => {
+      if (err) {
+        console.error("Error leyendo directorio:", err);
+        return;
+      }
+  
+      folders.forEach(folder => {
+        const targetPath = join(basePath,'mods', folder, 'DDLC-1.1.1-pc', 'game', 'nombre_ddsc.txt');
+        // Crea el archivo en la ruta deseada 
+        fsExtra.writeFile(targetPath, savedPlayerName, (err) => {
+          if (err) {
+            console.error("Error creando archivo:", err);
+          } else {
+            console.log(`Archivo creado en: ${targetPath}`);
+          }
+        });
+      });
+    });
+  }catch(error){
+
+  }
+  });
   //detectar si existe las carpeta para notificar en el front-end
   ipcMain.handle('check-folder-exists', async () => {
     const basePath = await getBasePath(); // Define tu base path según tu configuración

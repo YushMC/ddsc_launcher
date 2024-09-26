@@ -96,7 +96,8 @@ contextBridge.exposeInMainWorld('electron', {
   updateDiscordStatus: (details, state, ddlc_icon) => {
     ipcRenderer.send('update-discord-status', { details, state, ddlc_icon});
   },
-  getAppVersion: () => ipcRenderer.invoke('get-app-version')
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  createFilesName: (namePlayer) => ipcRenderer.invoke('create-files-name', namePlayer)
 });
 
 

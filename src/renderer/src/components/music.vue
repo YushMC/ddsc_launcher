@@ -8,12 +8,34 @@
     <!-- Titulo de la ventana-->
     <div class="titulo_ventana_music">
       <h2>Reproductor de Música</h2>
+      <i @click="togleAlbums" class="fa-solid" style="color:white;font-size: 2em;cursor: pointer;":class="togleAlbumsSwitch ? 'fa-table-cells-large' : 'fa-list'"></i>
       <h2 @click="ocultarMusica" style="cursor: pointer;">-</h2>
     </div>
     <!-- Lista de canciones-->
-    <div v-if="songs.length > 0" class="song-list">
+    <div v-if="!togleAlbumsSwitch" class="song-albums">
+      <label for="">Albumes</label>
       <ul>
-        <li v-for="(song, index) in songs" :key="index" @click="playSongFromList(index)" :class="{'active-song': currentSongIndex === index}">
+        <li @click="viewAlbums('DDLC')" :class=" {'album_selected' : album_selected_ref===0}">
+          <img src="https://www.dokidokispanish.club/assets/gui/window_icon.png" alt="">
+          <h4>DDLC OST</h4>
+        </li>
+        <li @click="viewAlbums('ExitRedux')" :class=" {'album_selected' : album_selected_ref===1}">
+          <img src="https://www.dokidokispanish.club/assets/logos/logo_exit_music_redux.png" alt="">
+          <h4>Exit Music Redux OST</h4>
+        </li>
+        <li @click="viewAlbums('AfterSchool')" :class=" {'album_selected' : album_selected_ref===2}">
+          <img src="https://www.dokidokispanish.club/assets/logos/logo_After_School.png" alt="">
+          <h4>After School OST</h4>
+        </li>
+      </ul>
+    </div>
+    <div v-if="togleAlbumsSwitch" class="song-list">
+      <label for="">Lista de reproducción</label>
+      <ul>
+        <li v-for="(song, index) in songs.filter(song => song.id >= id_inicio && song.id <= id_final)" 
+        :key="song.id" 
+        @click="playSongFromList(song.id)" 
+        :class="{'active-song': currentSongIndex === song.id}">
           <img :src="song.image" alt="Logo" width="30">
           <span>{{ song.title }} - {{ song.details }}</span>
         </li>
@@ -29,8 +51,8 @@
         <div class="info_music">
           <h3 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].title }}</h3>
           <h5 v-if="songs[currentSongIndex]">{{ songs[currentSongIndex].details }}</h5>
-          <a target="_blank" :href="songs[currentSongIndex].enlace" id="about">Visitar</a>
         </div>
+        <a v-if="songs[currentSongIndex].enlace != null " :href="songs[currentSongIndex].enlace" id="about">Visitar</a>
       </div>
       <!-- Barra de progreso con slider-->
       <div class="progress_music_and_controls">
@@ -72,9 +94,35 @@ const audio = ref(null);
 const currentTime = ref(0);
 const duration = ref(0);
 const pausa_play = ref(false);
-
+const togleAlbumsSwitch = ref(false);
 const replay = ref(false);
+const name_album= ref('');
+const id_inicio = ref(1);
+const album_selected_ref = ref(0);
+const id_final = ref(17);
 
+const viewAlbums= (album)=>{
+  if(album=="DDLC"){
+    name_album.value = album;
+    id_inicio.value = 0
+    id_final.value = 15
+    console.log(id_inicio.value)
+  }else if(album=="ExitRedux"){
+    id_inicio.value = 16
+    id_final.value = 42
+    name_album.value = album;
+    console.log(id_inicio.value)
+  }else if(album=="AfterSchool"){
+    id_inicio.value = 43
+    id_final.value = 47
+    name_album.value = album;
+    console.log(id_inicio.value)
+  }
+  togleAlbumsSwitch.value = !togleAlbumsSwitch.value
+}
+const togleAlbums = ()=>{
+  togleAlbumsSwitch.value = !togleAlbumsSwitch.value
+}
 const repeat_one_song = ()=>{
   replay.value = !replay.value
 }
@@ -89,8 +137,16 @@ const playSongFromList = (index) => {
     return;
   }
   currentSongIndex.value = index;
-  currentSong.value = songs.value[currentSongIndex.value];
+  console.log(currentSongIndex.value);
+  currentSong.value = songs.value[index];
   pausa_play.value = true
+  if(currentSongIndex.value>= 0 && currentSongIndex.value <= 15){
+    album_selected_ref.value= 0;
+  }else if(currentSongIndex.value >= 16 && currentSongIndex.value <= 42){
+    album_selected_ref.value= 1;
+  }else if(currentSongIndex.value>= 43 && currentSongIndex.value <= 47){
+    album_selected_ref.value= 2;
+  }
   let detalles = 'Reproductor de música';
   console.log("reproduciendo: "+ currentSong.value.title);
   let estado = 'Reproduciendo canción: '+ currentSong.value.title;
@@ -107,6 +163,7 @@ const play_pause = () => {
   if (pausa_play.value) {
     audio.value.pause();
     pausa_play.value = false;
+
     let detalles = 'Reproductor de música';
     let estado = 'Canción en pausa: '+ currentSong.value.title;
     // Llama a la función expuesta por el preload
@@ -122,6 +179,14 @@ const play_pause = () => {
     audio.value.play().catch((error) => {
       console.error('Error al reproducir la canción:', error);
     });
+    if(currentSongIndex.value>= 0 && currentSongIndex.value <= 15){
+      album_selected_ref.value= 0;
+    }else if(currentSongIndex.value>= 16 && currentSongIndex.value <= 42){
+      album_selected_ref.value= 1;
+    }else if(currentSongIndex.value>= 43 && currentSongIndex.value <= 47){
+      album_selected_ref.value= 2;
+    }
+    
     let detalles = 'Reproductor de música';
     console.log("reproduciendo: "+ currentSong.value.title);
     let estado = 'Reproduciendo canción: '+ currentSong.value.title;
@@ -144,7 +209,7 @@ const stop = () => {
 };
 //cancion anterior
 const prevSong = () => {
-  if (currentSongIndex.value > 0) {
+  if (currentSongIndex.value > id_inicio.value) {
     currentSongIndex.value--;
     currentSong.value = songs.value[currentSongIndex.value];
     pausa_play.value = true
@@ -200,18 +265,21 @@ const formatTime = (time) => {
 };
 //al terminar una cancion
 const onSongEnd = () => {
-
   //en caso de no estar activado el repetir una vez
-  if(replay.value==false){
-    pausa_play.value = false;
-    audio.value.currentTime = 0;
-    nextSong();
-  }else{
-    audio.value.currentTime = 0;
-    currentSong.value = songs.value[currentSongIndex.value];
-    loadAndPlaySong(true);
-    pausa_play.value = true;
-  }
+ 
+    if(replay.value==false){
+      pausa_play.value = false;
+      audio.value.currentTime = 0;
+      if(!(currentSongIndex.value == id_final.value)){
+        nextSong();
+      }
+    }else{
+      audio.value.currentTime = 0;
+      currentSong.value = songs.value[currentSongIndex.value];
+      loadAndPlaySong(true);
+      pausa_play.value = true;
+    }
+  
 };
 //opcion para que el usario pueda adelantar o atrasar la linea del tiempo
 const seek = () => {
@@ -226,6 +294,7 @@ const fetchSongs = async () => {
     }
     const data = await response.json();
     songs.value = data.results.map(song => ({
+      id: song.id,
       title: song.title,
       details: song.details,
       src: song.src,
@@ -259,13 +328,14 @@ onUnmounted(() => {
     width: 40%;
     position: absolute;
     right: 1%;
+    height: 89%;
     bottom: 10%;
     background: rgba(255, 255, 255, 0.85);
     box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
     border-radius: 10px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 0.5fr 4fr 1.5fr;
     overflow: hidden;
 }
 .titulo_ventana_music{
@@ -286,7 +356,8 @@ onUnmounted(() => {
 }
 .controls_music{
     width: 100%;
-    padding: 2%;
+    padding: 0 2%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     border: solid 3px #e016d1;
@@ -295,20 +366,24 @@ onUnmounted(() => {
     position: relative;
     z-index: 20;
     box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.322);
+    justify-content: center;
+    align-items: center;
 }
 .controls_music > .datos_music{
+  width: 100%;
     display: grid;
-    grid-template-columns: 1fr 4fr;
+    grid-template-columns: 1fr 3fr 1fr;
     gap: 3%;
+    justify-content: center;
+    align-items: center;
 }
 .info_music{
   width: 100%;
   display: flex;
   flex-direction: column;
-
 }
  #about{
-  width: 50%;
+  width: 100%;
   text-align: center;
   margin: 2% 0;
   background: #e016d1;
@@ -323,7 +398,7 @@ onUnmounted(() => {
     align-items: center;
 }
 .image_music img{
-    width: 80%;
+    width: 50px;
     filter: drop-shadow(0px  5px 10px rgba(0, 0, 0, 0.322));
 }
 .progress_music_and_controls{
@@ -378,7 +453,7 @@ onUnmounted(() => {
 }
 .song-list{
   width: 100%;
-  max-height: 320px;
+  height: 100%;
   padding: 2%;
   overflow-y: scroll;
 }
@@ -401,6 +476,7 @@ onUnmounted(() => {
   transform: scale(0.98);
   background-color: rgba(0, 0, 0, 0.2);
 }
+
 .song-list li img {
   margin-right: 10px;
 }
@@ -408,5 +484,47 @@ onUnmounted(() => {
 .song-list li.active-song {
   background-color: #e41eb279;
   font-weight: bold;
+}
+.song-albums{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  overflow-y: scroll;
+}
+.song-albums > ul{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1%;
+  list-style: none;
+  padding: 2%;
+}
+.song-albums li{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2%;
+  border: solid 3px transparent;
+  transition: all 0.3s linear;
+  border-radius: 5px;
+}
+.song-albums li:hover{
+  border: solid #e016d1 3px;
+  cursor: pointer;
+  transform: scale(1.02)
+}
+.album_selected{
+  border: solid #e016d1 3px !important;
+  box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.8);
+}
+.song-albums li img{
+  width: 50%;
+}
+.song-albums li > h4{
+  text-align: center;
+  font-weight: 400;
 }
 </style>
