@@ -26,6 +26,7 @@
                   <img src="./../assets/gui/guardar.png" alt="Guardar" style="width: 20%;" title="Copiar archivos">
                 </button>
               </div>
+              <label for="desarrollador" >Activar modo desarollador <input type="checkbox" v-model="isChecked" id="desarrollador" style="opacity: 1;" @change="toggle_dev"></label>
             </div>
             <div>
               <h5 style="text-align: center;
@@ -33,7 +34,7 @@
               z-index: 80;
               background: rgba(255, 255, 255, 1);
               box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.1);
-              padding: 2% 0;
+              padding: 1%;
               border-radius: 5px;
               ">Seleccionar fondo de pantalla</h5>
             </div>
@@ -181,10 +182,47 @@ const fetchBasePath = async () => {
   }
 }
 
+// Crear una referencia para el estado del checkbox
+const isChecked = ref(false);
+const dev_mode= ref(null);
+import { DevModeRun } from './../composables/DevMode';
+const { toggleDevMode } = DevModeRun();
+const toggle_dev= ()=>{
+  if(dev_mode.value==false){
+    localStorage.setItem('dev_mode', 1); // Guardar en localStorage
+  
+    Swal.fire({
+      position: 'center',
+      icon: "success",
+      title: "Modo desarrollador activado correctamente"
+    });
+    dev_mode.value = !dev_mode.value
+    toggleDevMode();
+  }else if(dev_mode.value==true){
+    localStorage.setItem('dev_mode', 0); // Guardar en localStorage
+  
+    Swal.fire({
+      position: 'center',
+      icon: "info",
+      title: "Modo desarrollador desactivado!"
+    });
+    dev_mode.value = !dev_mode.value
+    toggleDevMode();
+  }
+}
+
 onMounted(async () => {
   userMods.value = localStorage.getItem('playerName');
   fetchBasePath();
   const savedImage3 = localStorage.getItem('backgroundImage');
+  const storedValue = localStorage.getItem('dev_mode');
+  // Si el valor es '1', activar el checkbox; si es '0', desactivarlo
+  isChecked.value = storedValue === '1';
+  if(storedValue=='1'){
+    dev_mode.value= true
+  }else{
+    dev_mode.value =  false
+  }
   if (savedImage3) {
     imagen_seleccion_mostrar.value = savedImage3;
     console.log('Imagen guardada:', imagen_seleccion_mostrar.value);
@@ -222,6 +260,7 @@ onMounted(async () => {
     background-repeat: repeat;
     background-size: inherit;
     animation: fondo_moc linear infinite 60s;
+    overflow-y: scroll;
 }
 .content_card{
   width: 100%;
@@ -237,7 +276,6 @@ onMounted(async () => {
 }
 .content_card  > div{
   width: 90%;
-  margin: 1% 0 ;
 }
 
 label{

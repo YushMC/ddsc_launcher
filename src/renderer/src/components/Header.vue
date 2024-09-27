@@ -49,6 +49,9 @@
                 <div v-if="isMusicPlayerRunning">
                     <i class="fa-solid fa-music" @click="toggleMusicPlayer"></i>
                 </div>
+                <div v-if="isDevMode" >
+                    <router-link to="/DevMode"><i class="fa-solid fa-screwdriver-wrench"></i></router-link>
+                </div>
             </div>
             <div class="clock">
                 <span>{{ time }}</span>
@@ -72,6 +75,8 @@ const { toggleMusicPlayer } = useMusicPlayer();
 import { MusicPlayerRun } from './../composables/MusicPlayerRunnig';
 const { isMusicPlayerRunning } = MusicPlayerRun();
 
+import { DevModeRun } from './../composables/DevMode';
+const { isDevMode  } = DevModeRun();
 
 const imageUrl = 'https://www.dokidokispanish.club/assets/gui/Logo_DDSC.png'
 
@@ -117,6 +122,12 @@ function checkConnectionStatus() {
 
 onMounted(() => {
   updateTime(); // Actualiza inmediatamente al montar
+  const storedValue = localStorage.getItem('dev_mode');
+  if(storedValue=='1'){
+    isDevMode.value= true
+  }else{
+    isDevMode.value =  false
+  }
   timer = setInterval(updateTime, 1000); // Actualiza cada segundo
   updateDate();
   // Verificar si hay conexión al iniciar

@@ -78,7 +78,16 @@ const createNewFolderAndCopy = async () => {
     // Crear la carpeta
     await window.api.createNewFolderRute(newRute.value);
     Swal.close(); 
-
+    Swal.fire({
+        title: 'Eliminando archivos ...',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+    await window.electron.deleteFIlesBat();
+    Swal.close();
     await copyToNewRuteDDLCFiles();
 
 

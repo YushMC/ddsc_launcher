@@ -31,16 +31,18 @@ const fetchModInfoIcono = async () => {
         if (modInfo.url_logo) {
           mod.url_logo = modInfo.url_logo;
         } else {
-          mod.url_logo = '';  // Asigna una cadena vacía si no se encuentra la URL
+          mod.url_logo = 'https://www.dokidokispanish.club/assets/gui/window_icon.png';  // Asigna una cadena vacía si no se encuentra la URL
         }
         
         // Asigna el nombre si está presente
         if (modInfo.nombre) {
           mod.nombre = modInfo.nombre;
         } else {
-          mod.nombre = '';  // Asigna una cadena vacía si no se encuentra el nombre
+          mod.nombre = mod.name;  // Asigna una cadena vacía si no se encuentra el nombre
         }
       } else {
+        mod.url_logo = 'https://www.dokidokispanish.club/assets/gui/window_icon.png';
+        mod.nombre = modsListInstalled.value;
         console.warn(`No se encontró información para el mod: ${mod.name}`);
       }
     }
@@ -50,6 +52,20 @@ const fetchModInfoIcono = async () => {
 };
 
 const runModInstalled = async (selectedMod) => {
+  const modPath = await window.api.getBasePath();
+    Swal.fire({
+      title: 'Revisando archivos...',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    const fileRPY = `${modPath}\\${selectedMod}\\mods\\DDLC-1.1.1-pc\\game\\un.rpyc`;
+    await window.api.deleteFFile(String(fileRPY));
+    const fileRPYc = `${modPath}\\${selectedMod}\\mods\\DDLC-1.1.1-pc\\game\\unrpyc.log.txt`;
+    await window.api.deleteFFile(String(fileRPYc));
+    Swal.close();
     Swal.fire({
         position: 'center',
         title: "Ejecutando: " + selectedMod,
@@ -72,7 +88,7 @@ const runModInstalled = async (selectedMod) => {
         position: 'center',
         icon: "success",
         title: "Ejecutando: " + selectedMod,
-        html: 'Mod ejecutado en otra ventana!'
+        html: 'Mod ejecutado en otra ventana!<br><br><b>Si el mod no se ejecuta correctamente, prueba con el modo CMD desde la ventana de inicio!'
     })
   }
 

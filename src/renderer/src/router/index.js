@@ -8,6 +8,7 @@ import Escritorio from '../views/Escritorio.vue'
 import Cambiar_ubicacion from '../views/cambiar_ubicacion.vue'
 import Info from '../views/info.vue'
 import navegador_launcher from '../views/navegador_launcher.vue'
+import DevMode from '../views/DevMode.vue'
 
 const routes = [
   {
@@ -55,6 +56,11 @@ const routes = [
     name: 'Navegador',
     component: navegador_launcher,
     props: (route) => ({ url: route.query.url }) // Pasar la URL como prop
+  },
+  {
+    path: '/DevMode',
+    name: 'devmode',
+    component: DevMode
   }
 ]
 

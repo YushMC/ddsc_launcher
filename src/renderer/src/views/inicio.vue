@@ -136,6 +136,19 @@ onMounted(async () => {
 // Método para ejecutar el archivo .bat
 const runModBat = async () => {
   const modPath = await window.api.getBasePath(); // Ruta base para los mods (ajústala según sea necesario)
+  Swal.fire({
+        title: 'Revisando archivos...',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+  const fileRPY = `${modPath}\\${selectedMod.value}\\mods\\DDLC-1.1.1-pc\\game\\un.rpyc`;
+  await window.api.deleteFFile(String(fileRPY));
+  const fileRPYc = `${modPath}\\${selectedMod.value}\\mods\\DDLC-1.1.1-pc\\game\\unrpyc.log.txt`;
+  await window.api.deleteFFile(String(fileRPYc));
+  Swal.close();
   const batFilePath = `${modPath}\\mods\\${selectedMod.value}\\iniciar_mod.bat`; // Ruta del archivo .bat
   console.log("ruta bat: ", batFilePath)
   const result = await Swal.fire({
@@ -291,6 +304,20 @@ const fetchModInfo = async () => {
 
 const runMod = async () => {
   if (selectedMod.value) {
+    const modPath = await window.api.getBasePath();
+    Swal.fire({
+          title: 'Revisando archivos...',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+    const fileRPY = `${modPath}\\${selectedMod.value}\\mods\\DDLC-1.1.1-pc\\game\\un.rpyc`;
+    await window.api.deleteFFile(String(fileRPY));
+    const fileRPYc = `${modPath}\\${selectedMod.value}\\mods\\DDLC-1.1.1-pc\\game\\unrpyc.log.txt`;
+    await window.api.deleteFFile(String(fileRPYc));
+    Swal.close();
     Swal.fire({
         position: 'center',
         title: "Ejecutando: " + selectedMod.value,

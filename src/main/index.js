@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog, Notification,net, nativeImage  } from 'electron'
-import { join } from 'path'
+import { join,path } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import fsExtra from 'fs-extra'
 import { spawn } from 'child_process'
@@ -286,6 +286,55 @@ app.whenReady().then(() => {
 
   }
   });
+  ipcMain.handle('delete-files-bat', async () => {
+    try{
+    // Función que busca carpetas y genera el archivo
+    const basePath = await getBasePath(); // Define tu base path según tu configuración
+    console.log(basePath)
+    fsExtra.readdir(join(basePath,'mods'), (err, folders) => {
+      if (err) {
+        console.error("Error leyendo directorio:", err);
+        return;
+      }
+  
+      folders.forEach(folder => {
+        const targetPath = join(basePath,'mods', folder,'iniciar_mod.bat');
+        // Crea el archivo en la ruta deseada 
+        // Verificar si el archivo existe y eliminarlo
+      fsExtra.unlink(targetPath, (err) => {
+        if (err && err.code === 'ENOENT') {
+          console.log(`El archivo no existe en: ${targetPath}`);
+        } else if (err) {
+          console.error("Error eliminando archivo:", err);
+        } else {
+          console.log(`Archivo eliminado en: ${targetPath}`);
+        }
+      });
+      });
+    });
+  }catch(error){
+
+  }
+  });
+  // Manejador para eliminar un archivo específico
+  ipcMain.handle('delete-file', async (event, filePath) => {
+    try {
+      // Verificar si el archivo existe antes de eliminarlo
+      const exists = await fsExtra.pathExists(filePath);
+
+      if (!exists) {
+        return { success: false, error: 'El archivo no existe' };
+      }
+
+      // Eliminar el archivo
+      await fsExtra.remove(filePath);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error al eliminar el archivo:', error);
+      return { success: false, error: error.message };
+    }
+  });
   //detectar si existe las carpeta para notificar en el front-end
   ipcMain.handle('check-folder-exists', async () => {
     const basePath = await getBasePath(); // Define tu base path según tu configuración
@@ -298,6 +347,18 @@ app.whenReady().then(() => {
     const basePath = await getBasePath(); // Define tu base path según tu configuración
     const folderPath = join(basePath, ruta_bat);
 
+    return fsExtra.existsSync(folderPath); 
+  });
+  //detectar si existe el archivo depack para notificar en el front-end
+  ipcMain.handle('check-depack-exists', async () => {
+    const basePath = await getBasePath(); // Define tu base path según tu configuración
+    const folderPath = join(basePath, 'depack.rpy');
+    return fsExtra.existsSync(folderPath); 
+  });
+  //detectar si existe el archivo un.rpyc para notificar en el front-end
+  ipcMain.handle('check-unrpyc-exists', async () => {
+    const basePath = await getBasePath(); // Define tu base path según tu configuración
+    const folderPath = join(basePath, 'un.rpyc');
     return fsExtra.existsSync(folderPath); 
   });
 
@@ -442,6 +503,24 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
   
     return result;
   });
+  ipcMain.handle('select-rpy', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'], // Cambiado de 'openDirectory' a 'openFile'
+      filters: [
+        { name: 'Archivos rpy', extensions: ['rpy'] } // Asegúrate de incluir las extensiones correctas
+      ]
+    });
+    return result;
+  });
+  ipcMain.handle('select-rpyc', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openFile'], // Cambiado de 'openDirectory' a 'openFile'
+      filters: [
+        { name: 'Archivos rpyc', extensions: ['rpyc'] } // Asegúrate de incluir las extensiones correctas
+      ]
+    });
+    return result;
+  });
 
   // Manejador para seleccionar un archivo .zip
   ipcMain.handle('select-zip-file', async () => {
@@ -482,6 +561,21 @@ ipcMain.handle('run-bat-file', async (event, batFilePath) => {
       return { success: true };
     } catch (error) {
       console.error('Error al copiar la carpeta:', error);
+      return { success: false, error: error.message };
+    }
+  });
+  // Manejador para copiar un archivo específico
+  ipcMain.handle('copy-file', async (event, { src, dest }) => {
+    try {
+      // Asegurarse de que el directorio de destino existe
+      //await fsExtra.ensureDir(path.dirname(dest));
+
+      // Copiar el archivo
+      await fsExtra.copy(src, dest);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error al copiar el archivo:', error);
       return { success: false, error: error.message };
     }
   });

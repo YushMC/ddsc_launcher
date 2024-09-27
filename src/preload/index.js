@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld('api', {
   changeRuteConfig: (newRuteConfig) => ipcRenderer.invoke('new-file-config-change', newRuteConfig),
   //copiar archivos ddlc base a mod
   copyFolder: (paths) => ipcRenderer.invoke('copy-folder', paths),
+  copyFiles: (paths) => ipcRenderer.invoke('copy-file', paths),
   //copiar archivos de mod a carpeta creada de mod
   copyModFolder: (paths) => ipcRenderer.invoke('copy-mod-folder', paths),
   
@@ -49,6 +50,8 @@ contextBridge.exposeInMainWorld('api', {
   //Seleccionar archivos o carpeta
   selectFolder: () => ipcRenderer.invoke('select-folder'),
   selectImg: ()=> ipcRenderer.invoke('select-img'),
+  selectRpy: ()=> ipcRenderer.invoke('select-rpy'),
+  selectRpyc: ()=> ipcRenderer.invoke('select-rpyc'),
   selectZip: () => ipcRenderer.invoke('select-zip-file'),
   // Función para pegar desde el portapapeles
   pasteClipboard: () => clipboard.readText(),
@@ -59,7 +62,12 @@ contextBridge.exposeInMainWorld('api', {
   //detectar .bat 
   checkBatExists: async (url_bat) => {
     return await ipcRenderer.invoke('check-bat-exists', url_bat);
-
+  },
+  checkDepackExists: async () => {
+    return await ipcRenderer.invoke('check-depack-exists');
+  },
+  checkUnRPYCkExists: async () => {
+    return await ipcRenderer.invoke('check-unrpyc-exists');
   }
   //Extrasion de DDLC
   ,extractAndMoveZip: async (zipFilePath) => {
@@ -83,6 +91,8 @@ contextBridge.exposeInMainWorld('api', {
   onExtractionComplete: (callback) => ipcRenderer.on('extraction-complete', callback),
   //eliminar carpeta o archivo
   deleteFolderOrFile: (filePath) => ipcRenderer.invoke('delete-folder-or-file', filePath),
+  //eliminar carpeta o archivo
+  deleteFFile: (filePath) => ipcRenderer.invoke('delete-file', filePath),
   
   //revisar espacio en disco
   checkDiskSpace: (drivePath) => ipcRenderer.invoke('check-disk-space', drivePath),
@@ -97,7 +107,8 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.send('update-discord-status', { details, state, ddlc_icon});
   },
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
-  createFilesName: (namePlayer) => ipcRenderer.invoke('create-files-name', namePlayer)
+  createFilesName: (namePlayer) => ipcRenderer.invoke('create-files-name', namePlayer),
+  deleteFIlesBat: () =>ipcRenderer.invoke('delete-files-bat')
 });
 
 

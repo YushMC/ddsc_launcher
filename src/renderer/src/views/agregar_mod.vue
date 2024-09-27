@@ -267,7 +267,7 @@ const createFolderAndCopy = async () => {
 
   try {
     setLoadingCursor(); // Cambiar cursor a "cargando"
-    const basePath = await getBasePath(); // Obtener la ruta base desde el archivo de configuración
+    const basePath = await window.api.getBasePath(); // Obtener la ruta base desde el archivo de configuración
     const modFolder = modName.value.trim();
     const modPath = `${basePath}\\mods\\${modFolder}`;
     Swal.fire({
@@ -292,7 +292,7 @@ const createFolderAndCopy = async () => {
 //copiar archivos de DDLC
 const copyDDLCFiles = async ()=>{
   try{
-    const basePath = await getBasePath(); // Obtener la ruta base desde el archivo de configuración
+    const basePath = await window.api.getBasePath(); // Obtener la ruta base desde el archivo de configuración
     const modFolder = modName.value.trim();
     const modPath = `${basePath}\\mods\\${modFolder}`;
     const src = `${basePath}\\DDLC-1.1.1-pc`;
