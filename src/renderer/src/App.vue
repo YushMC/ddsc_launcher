@@ -41,8 +41,8 @@ const fetchModInfoIcono = async () => {
           mod.nombre = mod.name;  // Asigna una cadena vacía si no se encuentra el nombre
         }
       } else {
-        mod.url_logo = 'https://www.dokidokispanish.club/assets/gui/window_icon.png';
-        mod.nombre = modsListInstalled.value;
+        mod.url_logo = 'https://www.dokidokispanish.club/assets/gui/window_icon.png'
+        mod.nombre = mod.name;
         console.warn(`No se encontró información para el mod: ${mod.name}`);
       }
     }
